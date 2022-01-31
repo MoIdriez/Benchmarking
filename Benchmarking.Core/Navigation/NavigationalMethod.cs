@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Benchmarking.Core.Map;
+using Benchmarking.Core.Navigation.Helper;
 
 namespace Benchmarking.Core.Navigation
 {
@@ -13,20 +14,20 @@ namespace Benchmarking.Core.Navigation
             MaxIterations = maxIterations;
             ExploredMap = new int[map.Width(), map.Height()];
         }
-
+        
         public string Run()
         {
-
             var sw = new Stopwatch();
             sw.Start();
 
             var i = 0;
             while (!Robot.Location.Equals(Goal) && i < MaxIterations && !IsStuck)
             {
-                UpdateExploredMap();
+                //UpdateExploredMap();
                 if (HasSeenGoal)
                 {
-                    Robot.Step(Robot.Location.StepTowards(Goal));
+                    RobotStep(StepsTillGoal[0]);
+                    StepsTillGoal.RemoveAt(0);
                 }
                 else
                 {
@@ -40,36 +41,57 @@ namespace Benchmarking.Core.Navigation
             return Result();
         }
 
-        protected void UpdateExploredMap()
+        protected void RobotStep(Point location)
         {
-            var fov = Robot.GetFov();
+            var fov = Robot.GetFov().ToList();
+            var v = 0;
+            var av = 0;
 
             foreach (var line in fov)
             {
-                var points = line.GetPointsOnLine();
+                var points = Map.GetAllTillObstruction(line);
+                v += points.Count;
 
-                for (var i = 1; i < points.Count; i++)
+                foreach (var point in points)
                 {
-                    var point = points[i];
+                    if (ExploredMap[point.X, point.Y] == MapExt.DefaultValue) av++;
 
-                    //within fullMap
-                    if (ExploredMap.WithinBound(point))
+                    ExploredMap[point.X, point.Y] = Map[point.X, point.Y] == MapExt.WallPoint ? MapExt.WallPoint : MapExt.ExploredPoint;
+                    if (point.Equals(Goal))
                     {
-                        ExploredMap[point.X, point.Y] = Map[point.X, point.Y];
-
-                        if (ExploredMap[point.X, point.Y] == MapExt.MaxValue)
-                            break;
-
-                        if (point.Equals(Goal))
-                            HasSeenGoal = true;
-                    }
-                    else
-                    {
-                        break;
+                        StepsTillGoal ??= points.GetRange(0, points.IndexOf(point) + 1);
+                        HasSeenGoal = true;
                     }
                 }
             }
+            Robot.Step(location, v, av);
         }
+
+        //protected void UpdateExploredMap()
+        //{
+        //    var fov = Robot.GetFov();
+        //    var visibility = 0;
+        //    foreach (var line in fov)
+        //    {
+        //        var points = Map.GetAllTillObstruction(line);
+
+        //        foreach (var point in points)
+        //        {
+        //            ExploredMap[point.X, point.Y] = Map[point.X, point.Y];
+        //            if (point.Equals(Goal))
+        //            {
+        //                StepsTillGoal ??= points.GetRange(0, points.IndexOf(point) +1);
+        //                HasSeenGoal = true;
+        //            }
+                        
+        //        }
+
+        //        visibility += points.Count;
+        //    }
+        //    Robot.Visibility(visibility);
+        //}
+
+        private List<Point>? StepsTillGoal;
 
         protected abstract void Loop();
         protected abstract string AdditionalMetrics();
@@ -87,10 +109,11 @@ namespace Benchmarking.Core.Navigation
 
         public int MaxIterations { get; }
         public int[,] ExploredMap { get; }
-        public double DistanceFromGoal => Robot.Steps.Last().DistanceTo(Goal);
+        
+        public int IsStuckCount { get; set; } = 40;
+        public int IsStuckVerifier { get; set; } = 10;
 
-        public bool IsStuck => Robot.Steps.Count > 40 &&
-                               Robot.Steps.TakeLast(40).GroupBy(g => g).Any(g => g.Count() >= 10);
+        public bool IsStuck => Robot.Steps.Count > IsStuckCount && Robot.Steps.TakeLast(IsStuckCount).GroupBy(g => g).Any(g => g.Count() >= IsStuckVerifier);
         //public bool IsStuck => Robot.Steps.Count > 10 && Robot.Steps.TakeLast(10).All(s => s.Equals(Robot.Steps.Last()));
     }
 }

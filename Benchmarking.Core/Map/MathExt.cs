@@ -38,7 +38,7 @@ namespace Benchmarking.Core.Map
 
         public static double GetAngleBetween(this Point p1, Point p2)
         {
-            return Math.Atan2(p1.Y - p2.Y, p1.X - p2.X).ToDeg();
+            return Math.Atan2(p2.Y - p1.Y, p2.X - p1.X).ToDeg();
         }
 
         public static Point GetEndPoint(this Point p, double angle, double length)
@@ -49,11 +49,19 @@ namespace Benchmarking.Core.Map
             );
         }
 
-        public static Point StepTowards(this Point p, Point t)
+        public static double Percentage(this int v, int m)
         {
-            var x = Math.Abs(p.X - t.X) < 1 ? p.X : p.X > t.X ? p.X - 1 : p.X + 1;
-            var y = Math.Abs(p.Y - t.Y) < 1 ? p.Y : p.Y > t.Y ? p.Y - 1 : p.Y + 1;
-            return new Point(x, y);
+            return (double)v / m * 100;
+        }
+
+        public static double DiagonalOfRectangle(int w, int h)
+        {
+            return Math.Sqrt(Math.Pow(w, 2) + Math.Pow(h, 2));
+        }
+
+        public static double PercentageFromRange(double i, double mn, double mx)
+        {
+            return (i - mn) / (mx - mn);
         }
     }
 }

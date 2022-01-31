@@ -21,5 +21,10 @@ namespace Benchmarking.Core.Map
             Start = start;
             End = start.GetEndPoint(angle, length);
         }
+
+        public override string ToString()
+        {
+            return $"{Start}-{End}";
+        }
     }
 }

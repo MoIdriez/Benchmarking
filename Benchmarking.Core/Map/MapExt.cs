@@ -8,7 +8,9 @@ namespace Benchmarking.Core.Map
 {
     public static class MapExt
     {
-        public static int MaxValue = 100;
+        public static int WallPoint = 100;
+        public static int DefaultValue = 0;
+        public static int ExploredPoint = 1;
         public static int GoalSpawn = 1;
         public static int RobotSpawn = 2;
         public static int Width(this int[,] map) { return map.GetLength(0); }
@@ -25,13 +27,13 @@ namespace Benchmarking.Core.Map
 
             for (var x = 0; x < width; x++)
             {
-                map[x, 0] = MaxValue;
-                map[x, height - 1] = MaxValue;
+                map[x, 0] = WallPoint;
+                map[x, height - 1] = WallPoint;
             }
             for (var y = 0; y < height; y++)
             {
-                map[0, y] = MaxValue;
-                map[width - 1, y] = MaxValue;
+                map[0, y] = WallPoint;
+                map[width - 1, y] = WallPoint;
             }
             return map;
         }
@@ -57,14 +59,14 @@ namespace Benchmarking.Core.Map
             if (!map.WithinBound(p.X, p.Y))
                 return false;
 
-            if (map[p.X, p.Y] == MaxValue)
+            if (map[p.X, p.Y] == WallPoint)
                 return false;
 
             for (var x = p.X - 1; x <= p.X + 1; x++)
             {
                 for (var y = p.Y - 1; y <= p.Y + 1; y++)
                 {
-                    if (map[p.X, p.Y] == MaxValue)
+                    if (map[p.X, p.Y] == WallPoint)
                         return false;
                 }
             }
@@ -121,7 +123,49 @@ namespace Benchmarking.Core.Map
             var line = new LineSegment(p1, p2);
             var points = line.GetPointsOnLine();
 
-            return points.Any(p => map[p.X, p.Y] == MaxValue);
+            return points.Any(p => map[p.X, p.Y] == WallPoint);
+        }
+
+        private static bool IsObstructed(this int[,] map, Point p)
+        {
+            for (var x = p.X-1; x <= p.X + 1; x++)
+            {
+                for (var y = p.Y - 1; y <= p.Y + 1; y++)
+                {
+                    if (map[x, y] == WallPoint)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static Point GetLastUnObstructed(this int[,] map, Point location, Point randomLocation, int maxDistance)
+        {
+            var line = new LineSegment(location, randomLocation);
+            var points = line.GetPointsOnLine();
+
+            for (var i = 1; i < points.Count; i++)
+            {
+                if (map.IsObstructed(points[i]) || location.DistanceTo(randomLocation) > maxDistance)
+                    return points[i - 1];
+            }
+
+            return randomLocation;
+        }
+
+        public static List<Point> GetAllTillObstruction(this int[,] map, LineSegment line)
+        {
+            var points = new List<Point>();
+
+            foreach (var point in line.GetPointsOnLine())
+            {
+                points.Add(point);
+                if (map[point.X, point.Y] == WallPoint)
+                    break;
+            }
+
+            return points;
         }
 
         public static bool CanStepTo(this int[,] map, Point start, Point end)
@@ -134,7 +178,7 @@ namespace Benchmarking.Core.Map
             return
                 WithinBound(map, start) &&
                 WithinBound(map, ex, ey) &&
-                map[ex, ey] < MaxValue;
+                map[ex, ey] != WallPoint;
         }
 
         public static bool WithinBound(this int[,] map, Point p)
@@ -147,6 +191,16 @@ namespace Benchmarking.Core.Map
             return
                 0 <= x && x < map.Width() &&
                 0 <= y && y < map.Height();
+        }
+        public static bool InsideObstacle(this Point p, Rectangle[] getFiveObstacles)
+        {
+            foreach (var obstacle in getFiveObstacles)
+            {
+                if (obstacle.MinX <= p.X && p.X < obstacle.MaxX && obstacle.MinY <= p.Y && p.Y < obstacle.MaxY)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

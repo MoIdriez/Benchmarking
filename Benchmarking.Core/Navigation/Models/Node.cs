@@ -31,13 +31,13 @@ namespace Benchmarking.Core.Navigation.Models
         public void SetNewParent(Node parent)
         {
             Parent = parent;
-            var pts = GetAncestors();
+            //var pts = GetAncestors();
 
-            var sum = 0.0;
-            for (var i = 0; i < pts.Count - 1; i++)
-                sum += pts[i].DistanceTo(pts[i + 1]);
+            //var sum = 0.0;
+            //for (var i = 0; i < pts.Count - 1; i++)
+            //    sum += pts[i].DistanceTo(pts[i + 1]);
 
-            CostFromStart = sum;
+            CostFromStart = parent.CostFromStart + parent.Location.DistanceTo(Location);
         }
 
         public List<Point> GetAncestors()
@@ -46,7 +46,7 @@ namespace Benchmarking.Core.Navigation.Models
             points.Reverse();
             return points;
         }
-
+        
         public static IEnumerable<Point> GetNextSteps(Node successor)
         {
             yield return successor.Location;

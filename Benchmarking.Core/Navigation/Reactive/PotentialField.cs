@@ -6,9 +6,9 @@ namespace Benchmarking.Core.Navigation.Reactive
 {
     public class PotentialField : NavigationalMethod
     {
-        private readonly PfSettings _settings;
+        private readonly PotentialFieldSettings _settings;
 
-        public PotentialField(int[,] fullMap, Robot robot, Point goal, int maxIterations, PfSettings settings) : base(fullMap, robot, goal, maxIterations)
+        public PotentialField(int[,] fullMap, Robot robot, Point goal, int maxIterations, PotentialFieldSettings settings) : base(fullMap, robot, goal, maxIterations)
         {
             _settings = settings;
         }
@@ -17,7 +17,7 @@ namespace Benchmarking.Core.Navigation.Reactive
         {
             var force = NavExt.CalculatePotential(ExploredMap, _settings, Robot.Location, Goal);
             var nextStep = Robot.Location + force.GridPoint();
-            Robot.Step(Map.CanStepTo(Robot.Location, nextStep) ? nextStep : Robot.Location);
+            RobotStep(Map.CanStepTo(Robot.Location, nextStep) ? nextStep : Robot.Location);
         }
 
         protected override string AdditionalMetrics()

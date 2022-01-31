@@ -29,7 +29,7 @@ namespace Benchmarking.SingleRun
         {
             var (map, robot, goal) = DefaultMaps.GetBugTrapMap(new Random());
             
-            var settings = new PfSettings(10, 1, 1);
+            var settings = new PotentialFieldSettings(10, 1, 1);
             var method = new PotentialField(map, robot, goal, 1000, settings);
             var result = method.Run();
             _testOutputHelper.WriteLine(result);
@@ -48,7 +48,7 @@ namespace Benchmarking.SingleRun
             for (var i = 0; i < 2; i++)
             {
                 var maps = DefaultMaps.AllMaps(new Random());
-                var settings = new PfSettings(or, oc, ac);
+                var settings = new PotentialFieldSettings(or, oc, ac);
                 foreach (var (map, robot, goal, mapName) in maps)
                 {
                     tasks.Add(RunMethod(sn, map, robot, goal, mapName, settings));
@@ -78,12 +78,12 @@ namespace Benchmarking.SingleRun
         {
             var sn = new StateNotifier(_testOutputHelper, $"PotentialField-{Guid.NewGuid()}.txt");
 
-            var settings = new List<PfSettings>();
+            var settings = new List<PotentialFieldSettings>();
             for (var or = 1; or < 40; or++)
             for (var oc = 1; oc <= 20; oc++)
             for (var ac = 1; ac <= 20; ac++)
             {
-                settings.Add(new PfSettings(or, oc, ac));
+                settings.Add(new PotentialFieldSettings(or, oc, ac));
             }
 
             sn.Run(settings.Count * 100 * 3, settings.Count * 100 * 3 / 100);
@@ -105,10 +105,10 @@ namespace Benchmarking.SingleRun
             sn.Result();
         }
 
-        private async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName, PfSettings settings)
+        private async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName, PotentialFieldSettings settings)
         {
             var result = await Task.Run(() => new PotentialField(map, robot, goal, 1000, settings).Run());
-            sn.NotifyCompletion(new[] { $"{mapName},{result}" });
+            sn.NotifyCompletion($"{mapName},{result}");
         }
     }
 }

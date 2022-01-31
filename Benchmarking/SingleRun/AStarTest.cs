@@ -55,7 +55,7 @@ namespace Benchmarking.SingleRun
         {
             var result = await Task.Run(() => new AStar(map, robot, goal, 1000).Run());
 
-            sn.NotifyCompletion(new[] { $"{mapName},{result}" });
+            sn.NotifyCompletion($"{mapName},{result}");
         }
     }
 }

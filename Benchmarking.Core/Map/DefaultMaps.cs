@@ -15,9 +15,9 @@
             };
         }
 
-        public static (int[,] map, Robot robot, Point goal) GetFiveBlockMap(Random r)
+        public static Rectangle[] GetFiveObstacles()
         {
-            var obstacles = new[]
+            return new[]
             {
                 new Rectangle(60, 80, 120, 160),
                 new Rectangle(60, 80, 60, 100),
@@ -25,6 +25,10 @@
                 new Rectangle(120, 140, 10, 70),
                 new Rectangle(120, 140, 90, 150)
             };
+        }
+        public static (int[,] map, Robot robot, Point goal) GetFiveBlockMap(Random r)
+        {
+            var obstacles = GetFiveObstacles();
             var goalSpawn = new Rectangle(10, 50, 10, 150);
             var robotSpawn = new Rectangle(150, 190, 10, 150);
             return GenerateMap(200, 160, obstacles, goalSpawn, robotSpawn, r);
@@ -66,11 +70,11 @@
         {
             var map = MapExt.SetupMapWithBoundary(w, h);
             foreach (var obstacle in obstacles)
-                map.FillMap(obstacle, MapExt.MaxValue);
+                map.FillMap(obstacle, MapExt.WallPoint);
 
             var goal = map.GetRandomLocation(goalSpawn, r);
             map.FillMap(goalSpawn, MapExt.GoalSpawn);
-            var robot = new Robot(map.GetRandomLocation(robotSpawn, r), 90);
+            var robot = new Robot(map.GetRandomLocation(robotSpawn, r), 30);
             map.FillMap(robotSpawn, MapExt.RobotSpawn);
             return (map, robot, goal);
         }

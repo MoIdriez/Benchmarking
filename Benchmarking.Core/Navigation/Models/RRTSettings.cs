@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Benchmarking.Core.Navigation.Models
+﻿namespace Benchmarking.Core.Navigation.Models
 {
     public class RRTSettings
     {
@@ -15,6 +9,11 @@ namespace Benchmarking.Core.Navigation.Models
         {
             GrowthSize = growthSize;
             GoalDistance = goalDistance;
+        }
+
+        public override string ToString()
+        {
+            return $"{GrowthSize},{GoalDistance}";
         }
     }
 }

@@ -24,13 +24,13 @@ namespace Benchmarking.Core.Navigation.Dijkstra
 
             if (ExploredMap.CanStepTo(Robot.Location, nextStep))
             {
-                Robot.Step(nextStep);
+                RobotStep(nextStep);
                 _step++;
             }
             else
             {
                 GetNewPlan();
-                Robot.Step(Robot.Location);
+                RobotStep(Robot.Location);
             }
         }
 

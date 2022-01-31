@@ -8,22 +8,21 @@ namespace Benchmarking.Core.Map
 {
     public class Robot
     {
-        public List<Point> Steps;
+        //public List<Point> Steps;
+        //public List<int> Visibilities = new();
+        public List<RobotStep> Steps;
         public int FovLength;
 
-        public Point Location => Steps.Last();
+        public Point Location => Steps.Last().Location;
         public Robot(Point location, int fovLength)
         {
-            Steps = new List<Point> { location };
+            Steps = new List<RobotStep> { new(location, 0, 0) };
             FovLength = fovLength;
         }
 
-        public void Step(Point p)
+        public void Step(Point p, int v, int av)
         {
-            if (Location.DistanceTo(p) > 1.5)
-                throw new ArgumentOutOfRangeException(nameof(p), p, $"Location: {Location}, Point: {p}, Distance: {Location.DistanceTo(p)}");
-
-            Steps.Add(p);
+            Steps.Add(new RobotStep(p, v, av));
         }
     }
 }

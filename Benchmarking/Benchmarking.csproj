@@ -22,8 +22,4 @@
     <ProjectReference Include="..\Benchmarking.Core\Benchmarking.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ParameterTest\" />
-  </ItemGroup>
-
 </Project>

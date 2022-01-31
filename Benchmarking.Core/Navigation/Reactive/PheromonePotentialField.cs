@@ -11,14 +11,15 @@ namespace Benchmarking.Core.Navigation.Reactive
 {
     public class PheromonePotentialField : NavigationalMethod
     {
-        private readonly PfSettings _settings;
+        private readonly PotentialFieldSettings _settings;
         private readonly PheromoneSettings _pheromoneSettings;
         private readonly List<Pheromone> _pheromones = new();
 
-        public PheromonePotentialField(int[,] fullMap, Robot robot, Point goal, int maxIterations, PfSettings settings, PheromoneSettings pheromoneSettings) : base(fullMap, robot, goal, maxIterations)
+        public PheromonePotentialField(int[,] fullMap, Robot robot, Point goal, int maxIterations, PotentialFieldSettings settings, PheromoneSettings pheromoneSettings) : base(fullMap, robot, goal, maxIterations)
         {
             _settings = settings;
             _pheromoneSettings = pheromoneSettings;
+            IsStuckVerifier = 20;
         }
 
         protected override void Loop()
@@ -36,7 +37,7 @@ namespace Benchmarking.Core.Navigation.Reactive
                 _pheromones.Add(new Pheromone(pheromone, _pheromoneSettings.StrengthIncrease));
             }
 
-            Robot.Step(ExploredMap.CanStepTo(Robot.Location, nextStep) ? nextStep : Robot.Location);
+            RobotStep(ExploredMap.CanStepTo(Robot.Location, nextStep) ? nextStep : Robot.Location);
         }
 
         private Vector CalculatePheromones()
