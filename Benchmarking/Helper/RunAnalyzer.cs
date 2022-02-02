@@ -28,7 +28,8 @@ namespace Benchmarking.Helper
             var robotLocation = _nvm.Robot.Location;
             double steps = AStar.Plan(_nvm.Map, robotLocation, goalLocation).Count;
 
-            return steps / MathExt.DiagonalOfRectangle(_nvm.Map.Width(),_nvm.Map.Height());
+            var v = steps / MathExt.DiagonalOfRectangle(_nvm.Map.Width(),_nvm.Map.Height());
+            return v.KeepRange(0, 1);
         }
 
         /// <summary>
@@ -40,8 +41,8 @@ namespace Benchmarking.Helper
             var robotLocation = _nvm.Robot.Steps[0].Location;
             double steps = AStar.Plan(_nvm.Map, robotLocation, goalLocation).Count;
 
-            var v = MathExt.PercentageFromRange(_nvm.Robot.Steps.Count, steps, steps * 5);
-            return 1.0 - v;
+            var v = MathExt.PercentageFromRange(_nvm.Robot.Steps.Count, steps, steps * 100);
+            return (1.0 - v).KeepRange(0, 1);
         }
 
         /// <summary>
@@ -57,8 +58,8 @@ namespace Benchmarking.Helper
             AStar.Plan(_nvm.Map, robotLocation, goalLocation);
             sw.Stop();
 
-            var v = MathExt.PercentageFromRange(_nvm.Time, sw.ElapsedMilliseconds, sw.ElapsedMilliseconds * 40);
-            return 1.0 - v;
+            var v = MathExt.PercentageFromRange(_nvm.Time, sw.ElapsedMilliseconds, sw.ElapsedMilliseconds * 100);
+            return (1.0 - v).KeepRange(0, 1);
         }
 
         /// <summary>
@@ -69,16 +70,16 @@ namespace Benchmarking.Helper
             double availablePoints = CheckMapFor(MapExt.DefaultValue);
             double exploredPoints = CheckMapFor(MapExt.ExploredPoint);
             var v = MathExt.PercentageFromRange(exploredPoints, 0, availablePoints);
-            return v;
+            return v.KeepRange(0, 1);
         }
 
         /// <summary>
-        /// Gives a value between 0 - 1 where 1 is all steps are redundant
+        /// Gives a value between 0 - 1 where 0 is all steps are redundant
         /// </summary>
         public double StepRedundancy()
         {
             double redundantSteps = _nvm.Robot.Steps.Count(s => _nvm.Robot.Steps.Count(r => Equals(r.Location, s.Location)) > 1);
-            return redundantSteps / _nvm.Robot.Steps.Count;
+            return (1 - (redundantSteps / _nvm.Robot.Steps.Count)).KeepRange(0, 1);
         }
 
         /// <summary>
@@ -89,9 +90,11 @@ namespace Benchmarking.Helper
         {
             var visibility = _nvm.Robot.Steps.Average(s => s.Visibility) / 360;
             var v = MathExt.PercentageFromRange(visibility, 0, _nvm.Robot.FovLength);
-            return v;
+            return v.KeepRange(0, 1);
         }
 
+        public string OutPut => $"{Success()},{StepEfficiency()},{TimeEfficiency()},{ExplorationEfficiency()}" +
+                                $",{StepRedundancy()},{StepVisibility()}";
 
         private int CheckMapFor(int value)
         {

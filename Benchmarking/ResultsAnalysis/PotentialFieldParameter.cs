@@ -59,7 +59,7 @@ namespace Benchmarking.ResultsAnalysis
 
             var scatters = new List<Scatter>();
 
-            foreach (var result in results.Where(r => r.Map == TestResult.MapType.Five))
+            foreach (var result in results)//.Where(r => r.Map == TestResult.MapType.Five))
             {
                 var i = scatters.FirstOrDefault(i => i.ObstacleRange == result.ObstacleRange && i.ObstacleConstant == result.ObstacleConstant && i.AttractiveConstant == result.AttractiveConstant);
                 if (i == default)
@@ -68,7 +68,13 @@ namespace Benchmarking.ResultsAnalysis
                     i.Counter += 1;
             }
 
-            File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PotentialFieldParameter\PotentialField-Extensive-FiveScatter.txt", scatters.Select(l => l.Line));
+            foreach (var scatter in scatters.OrderByDescending(s => s.Counter).Take(10))
+            {
+                _output.WriteLine($"{scatter.Counter}:{scatter.ObstacleRange},{scatter.ObstacleConstant},{scatter.AttractiveConstant}");
+            }
+            
+
+            //File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PotentialFieldParameter\PotentialField-Extensive-FiveScatter.txt", scatters.Select(l => l.Line));
         }
 
         public class Scatter

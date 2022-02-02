@@ -51,7 +51,7 @@ namespace Benchmarking.ResultsAnalysis
             _output.WriteLine($"Bug Trap: \t\t{success.Count(r => r.Map == TestResult.MapType.Bug)} ({success.Count(r => r.Map == TestResult.MapType.Bug).Percentage(success.Count)})");
             _output.WriteLine($"Tunnel: \t\t{success.Count(r => r.Map == TestResult.MapType.Tunnel)} ({success.Count(r => r.Map == TestResult.MapType.Tunnel).Percentage(success.Count)})");
 
-            File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-SuccessResults.txt", success.Select(l => l.Line));
+            //File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-SuccessResults.txt", success.Select(l => l.Line));
 
             var scatters = new List<Scatter>();
 
@@ -71,10 +71,15 @@ namespace Benchmarking.ResultsAnalysis
                     i.Counter += 1;
             }
 
-            File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-AllScatter.txt", scatters.Select(l => l.Line));
-            File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-FiveScatter.txt", scatters.Where(m => m.Map == TestResult.MapType.Five).Select(l => l.Line));
-            File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-BugScatter.txt", scatters.Where(m => m.Map == TestResult.MapType.Bug).Select(l => l.Line));
-            File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-TunnelScatter.txt", scatters.Where(m => m.Map == TestResult.MapType.Tunnel).Select(l => l.Line));
+            foreach (var scatter in scatters.OrderByDescending(s => s.Counter).Take(30))
+            {
+                _output.WriteLine($"{scatter.Counter}:{scatter.ObstacleRange},{scatter.ObstacleConstant},{scatter.AttractiveConstant},{scatter.Constant},{scatter.Si},{scatter.R}");
+            }
+
+            //File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-AllScatter.txt", scatters.Select(l => l.Line));
+            //File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-FiveScatter.txt", scatters.Where(m => m.Map == TestResult.MapType.Five).Select(l => l.Line));
+            //File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-BugScatter.txt", scatters.Where(m => m.Map == TestResult.MapType.Bug).Select(l => l.Line));
+            //File.WriteAllLines(@"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive-TunnelScatter.txt", scatters.Where(m => m.Map == TestResult.MapType.Tunnel).Select(l => l.Line));
         }
 
 

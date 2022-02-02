@@ -26,6 +26,7 @@
                 new Rectangle(120, 140, 90, 150)
             };
         }
+
         public static (int[,] map, Robot robot, Point goal) GetFiveBlockMap(Random r)
         {
             var obstacles = GetFiveObstacles();
@@ -62,8 +63,6 @@
             var robotSpawn = new Rectangle(160, 190, 10, 150);
             return GenerateMap(200, 160, obstacles, goalSpawn, robotSpawn, r);
         }
-
-
 
         private static (int[,] map, Robot robot, Point goal) GenerateMap(int w, int h, Rectangle[] obstacles,
             Rectangle goalSpawn, Rectangle robotSpawn, Random r)

@@ -9,6 +9,7 @@ namespace Benchmarking.Helper
 {
     public static class TestResult
     {
+        public static string RRT => @"D:\Research\Repos\Benchmarking\Benchmarking\Results\RRT\RRT-All.txt";
         public static string AStar1 => @"D:\Research\Repos\Benchmarking\Benchmarking\Results\AStar\AStar-1.txt";
         public static string AStar2 => @"D:\Research\Repos\Benchmarking\Benchmarking\Results\AStar\AStar-2.txt";
         public static string AStar3 => @"D:\Research\Repos\Benchmarking\Benchmarking\Results\AStar\AStar-3.txt";
@@ -18,6 +19,10 @@ namespace Benchmarking.Helper
         public static string PheromonePotentialFieldExtensive => @"D:\Research\Repos\Benchmarking\Benchmarking\Results\PheromonePotentialFieldParameter\PheromonePotentialField-Extensive.txt";
         //tunnel,False,True,374,41,1000,1,1,1
 
+        public static List<RRTResult> GetRRT()
+        {
+            return File.ReadAllLines(RRT).Select(l => new RRTResult(l)).ToList();
+        }
         public static List<AStarResult> GetAStar()
         {
             var pt1 = File.ReadAllLines(AStar1);
@@ -77,6 +82,36 @@ namespace Benchmarking.Helper
             public override string Line => base.Line + $",{ObstacleRange},{ObstacleConstant},{AttractiveConstant}";
         }
 
+        public class RRTResult
+        {
+            public RRTResult(string line)
+            {
+                var split = line.Split(',');
+                Map = split[0] == "five" ? MapType.Five : split[0] == "bug" ? MapType.Bug : MapType.Tunnel;
+                Success = bool.Parse(split[1]);
+                IsStuck = bool.Parse(split[2]);
+                Time = int.Parse(split[3]);
+                Steps = int.Parse(split[4]);
+                MaxIterations = int.Parse(split[5]);
+                NewPlanCount = int.Parse(split[6]);
+                GrowthSize = int.Parse(split[7]);
+                GoalDistance = int.Parse(split[8]);
+            }
+            public MapType Map { get; set; }
+            public bool Success { get; set; }
+            public bool IsStuck { get; set; }
+
+            public int Time { get; set; }
+            public int Steps { get; set; }
+            public int MaxIterations { get; set; }
+            public int NewPlanCount { get; set; }
+            public int GrowthSize { get; set; }
+            public int GoalDistance { get; set; }
+            public virtual string Line => $"{(int)Map}" +
+                                          $",{(Success ? 1 : 0)}" +
+                                          $",{Time},{Steps},{MaxIterations},{NewPlanCount},{GrowthSize},{GoalDistance}";
+        }
+
         public class AStarResult
         {
             public AStarResult(string line)
@@ -108,6 +143,8 @@ namespace Benchmarking.Helper
                 Map = split[0] == "five" ? MapType.Five : split[0] == "bug" ? MapType.Bug : MapType.Tunnel;
                 Success = bool.Parse(split[1]);
                 IsStuck = bool.Parse(split[2]);
+                //Success = int.Parse(split[1]) == 1;
+                //IsStuck = int.Parse(split[2]) == 1;
                 Time = int.Parse(split[3]);
                 Steps = int.Parse(split[4]);
                 MaxIterations = int.Parse(split[5]);

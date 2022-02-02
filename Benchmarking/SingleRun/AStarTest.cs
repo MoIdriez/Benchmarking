@@ -51,7 +51,7 @@ namespace Benchmarking.SingleRun
 
         }
 
-        private async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName)
+        public static async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName)
         {
             var result = await Task.Run(() => new AStar(map, robot, goal, 1000).Run());
 

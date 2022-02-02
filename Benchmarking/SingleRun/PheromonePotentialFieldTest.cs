@@ -88,9 +88,7 @@ namespace Benchmarking.SingleRun
             }
             sn.Result();
         }
-
-
-        private async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName, PotentialFieldSettings settings, PheromoneSettings pheromoneSettings)
+        public static async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName, PotentialFieldSettings settings, PheromoneSettings pheromoneSettings)
         {
             var result = await Task.Run(() => new PheromonePotentialField(map, robot, goal, 1000, settings, pheromoneSettings).Run());
             sn.NotifyCompletion($"{mapName},{result}");

@@ -63,5 +63,10 @@ namespace Benchmarking.Core.Map
         {
             return (i - mn) / (mx - mn);
         }
+
+        public static double KeepRange(this double i, int min, int max)
+        {
+            return Math.Max(min, Math.Min(i, max));
+        }
     }
 }

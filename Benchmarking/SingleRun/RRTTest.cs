@@ -112,7 +112,7 @@ namespace Benchmarking.SingleRun
             sn.Result();
         }
 
-        private async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName, RRTSettings settings)
+        public static async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName, RRTSettings settings)
         {
             var result = await Task.Run(() => new RRT(map, robot, goal, 1000, settings).Run());
             sn.NotifyCompletion($"{mapName},{result}");
