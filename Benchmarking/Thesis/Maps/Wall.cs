@@ -142,6 +142,118 @@ namespace Benchmarking.Thesis.Maps
             return (map, obstacles, default, default);
         }
 
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) RoomThree()
+        {
+            //TODO
+            return default;
+        }
+        
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) PlankPileOne()
+        {
+            var map = MapExt.SetupMapWithBoundary(50, 50);
+            var obstacles = new Rectangle[]
+            {
+                new(10, 21, 16, 17),
+                new(30, 41, 16, 17),
+                new(10, 41, 32, 33),
+
+            };
+            return (map, obstacles, default, default);
+        }
+        
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) PlankPileTwo()
+        {
+            var map = MapExt.SetupMapWithBoundary(100, 100);
+            var obstacles = new Rectangle[]
+            {
+                new(15, 41, 25, 26),
+                new(60, 86, 25, 26),
+
+                new(15, 86, 50, 51),
+
+                new(15, 41, 75, 76),
+                new(60, 86, 75, 76),
+
+            };
+            return (map, obstacles, default, default);
+        }
+        
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) PlankPileThree()
+        {
+            var map = MapExt.SetupMapWithBoundary(200, 200);
+            var obstacles = new Rectangle[]
+            {
+                new(28, 56, 30, 31),
+                new(84, 112, 30, 31),
+                new(140, 168, 30, 31),
+
+                new(0, 20, 60, 61),
+                new(40, 80, 60, 61),
+                new(120, 160, 60, 61),
+                new(180, 198, 60, 61),
+
+                new(22, 44, 90, 91),
+                new(66, 88, 90, 91),
+                new(110, 132, 90, 91),
+                new(154, 176, 90, 91),
+
+                new(0, 30, 120, 121),
+                new(50, 150, 120, 121),
+                new(170, 198, 120, 121),
+
+                new(22, 44, 150, 151),
+                new(66, 88, 150, 151),
+                new(110, 132, 150, 151),
+                new(154, 176, 150, 151),
+
+                new(0, 30, 180, 181),
+                new(50, 150, 180, 181),
+                new(170, 198, 180, 181)
+            };
+            return (map, obstacles, default, default);
+        }
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) CorridorOne()
+        {
+            var map = MapExt.SetupMapWithBoundary(50, 50);
+            var obstacles = new Rectangle[]
+            {
+                new(13, 37, 0, 21),
+                new(13, 37, 30, 49),
+            };
+            return (map, obstacles, default, default);
+        }
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) CorridorTwo()
+        {
+            var map = MapExt.SetupMapWithBoundary(50, 50);
+            var obstacles = new Rectangle[]
+            {
+                new(13, 23, 0, 21),
+                new(23, 37, 0, 11),
+
+                new(13, 30, 30, 49),
+                new(30, 37, 18, 49),
+            };
+            return (map, obstacles, default, default);
+        }
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) CorridorThree()
+        {
+            var map = MapExt.SetupMapWithBoundary(50, 50);
+            var obstacles = new Rectangle[]
+            {
+                new(13, 37, 0, 7),
+                new(13, 18, 0, 35),
+
+                new(13, 28, 29, 37),
+                new(23, 37, 14, 22),
+
+
+                new(32, 37, 15, 49),
+                new(13, 37, 43, 49),
+
+            };
+            return (map, obstacles, default, default);
+        }
+
         public static (int[,] map, Robot robot, Point goal) GenerateMap(Func<(int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal)> setup, Random r)
         {
             var (map, obstacles, robot, goal) = setup.Invoke();

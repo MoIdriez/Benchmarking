@@ -67,6 +67,48 @@ namespace Benchmarking.Thesis.Maps
             await Show(Wall.RoomTwo);
         }
 
+        [Fact]
+        public async Task RoomThree()
+        {
+            await Show(Wall.RoomThree);
+        }
+
+        [Fact]
+        public async Task PlankPileOne()
+        {
+            await Show(Wall.PlankPileOne);
+        }
+
+        [Fact]
+        public async Task PlankPileTwo()
+        {
+            await Show(Wall.PlankPileTwo);
+        }
+
+        [Fact]
+        public async Task PlankPileThree()
+        {
+            await Show(Wall.PlankPileThree);
+        }
+
+        [Fact]
+        public async Task CorridorOne()
+        {
+            await Show(Wall.CorridorOne);
+        }
+
+        [Fact]
+        public async Task CorridorTwo()
+        {
+            await Show(Wall.CorridorTwo);
+        }
+
+        [Fact]
+        public async Task CorridorThree()
+        {
+            await Show(Wall.CorridorThree);
+        }
+
 
         private static async Task Show(Func<(int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal)> setup)
         {
