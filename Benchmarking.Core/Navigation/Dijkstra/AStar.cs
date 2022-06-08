@@ -89,7 +89,7 @@ namespace Benchmarking.Core.Navigation.Dijkstra
                 visited[current.Location.X, current.Location.Y] = current.Cost;
             }
 
-            throw new Exception("Couldn't find a path");
+            return new List<Point>();
         }
 
         private static Node GetFirst(Dictionary<int, Node> nodes)

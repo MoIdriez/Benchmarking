@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using Benchmarking.Core.Map;
 using Point = Benchmarking.Core.Map.Point;
+using Rectangle = Benchmarking.Core.Map.Rectangle;
 
 namespace Benchmarking.Helper
 {
@@ -41,6 +42,52 @@ namespace Benchmarking.Helper
                 grf.FillEllipse(new SolidBrush(Color.LightBlue), step.Location.X / scale, step.Location.Y / scale, circleSize / scale, circleSize / scale);
             }
 
+            await Task.Run(() => image.Save(fileName, ImageFormat.Png));
+            Process.Start("cmd", $"/c {fileName}");
+        }
+
+        public static async Task Show(int[,] map, Rectangle? robot, Rectangle? goal)
+        {
+            var image = new Bitmap(map.Width(), map.Height());
+            var grf = Graphics.FromImage(image);
+            for (var x = 0; x < map.Width(); x++)
+            {
+                for (var y = 0; y < map.Height(); y++)
+                {
+                    if (map[x, y] == MapExt.WallPoint)
+                        image.SetPixel(x, y, Color.Black);
+                    else if (map[x, y] == MapExt.RobotSpawn)
+                        image.SetPixel(x, y, Color.LightBlue);
+                    else if (map[x, y] == MapExt.GoalSpawn)
+                        image.SetPixel(x, y, Color.LightGreen);
+                    else
+                        image.SetPixel(x, y, Color.LightSlateGray);
+                }
+            }
+
+            //if (robot != default)
+            //{
+            //    for (var x = robot.MinX; x <= robot.MaxX; x++)
+            //    {
+            //        for (var y = robot.MinY; y <= robot.MaxY; y++)
+            //        {
+            //            image.SetPixel(x, y, Color.LightBlue);
+            //        }
+            //    }
+            //}
+
+            //if (goal != default)
+            //{
+            //    for (var x = goal.MinX; x <= goal.MaxX; x++)
+            //    {
+            //        for (var y = goal.MinY; y <= goal.MaxY; y++)
+            //        {
+            //            image.SetPixel(x, y, Color.LightGreen);
+            //        }
+            //    }
+            //}
+            
+            var fileName = "test.png";
             await Task.Run(() => image.Save(fileName, ImageFormat.Png));
             Process.Start("cmd", $"/c {fileName}");
         }

@@ -202,5 +202,40 @@ namespace Benchmarking.Core.Map
 
             return false;
         }
+
+        public static void InverseMap(this int[,] map)
+        {
+            for (var x = 0; x < map.Width(); x++)
+            {
+                for (var y = 0; y < map.Height(); y++)
+                {
+                    map[x, y] = map[x, y] == WallPoint ? 0 : WallPoint;
+
+                }
+            }
+        }
+
+        public static List<Point> GetSurround(this Point p, int width, int height, bool includePoint = false, int range = 1)
+        {
+            var minX = Math.Max(0, p.X - range);
+            var maxX = Math.Min(width - 1, p.X + range);
+            var minY = Math.Max(0, p.Y - range);
+            var maxY = Math.Min(height - 1, p.Y + range);
+
+
+            var points = new List<Point>();
+
+            for (var x = minX; x <= maxX; x++)
+            {
+                for (var y = minY; y <= maxY; y++)
+                {
+                    var nb = new Point(x, y);
+                    if (includePoint || !p.Equals(nb))
+                        points.Add(nb);
+                }
+            }
+
+            return points;
+        }
     }
 }
