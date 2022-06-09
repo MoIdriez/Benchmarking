@@ -144,8 +144,54 @@ namespace Benchmarking.Thesis.Maps
 
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) RoomThree()
         {
-            //TODO
-            return default;
+            var map = MapExt.SetupMapWithBoundary(200, 200);
+            var obstacles = new Rectangle[]
+            {
+                new(20, 21, 40, 81),
+                new(20, 21, 100, 121),
+                new(20, 21, 140, 161),
+
+                new(40, 41, 20, 61),
+                new(40, 41, 100, 121),
+
+                new(60, 61, 40, 61),
+                new(60, 61, 120, 141),
+
+                new(80, 81, 0, 81),
+                new(80, 81, 140, 199),
+
+                new(100, 101, 20, 61),
+
+                new(120, 121, 120, 161),
+
+                new(140, 141, 0, 21),
+                new(140, 141, 60, 121),
+
+                new(160, 161, 120, 181),
+
+                new(20, 41, 20, 21),
+                new(100, 121, 20, 21),
+
+                new(120, 181, 40, 41),
+
+                new(40, 61, 60, 61),
+
+                new(60, 81, 80, 81),
+
+                new(100, 141, 100, 101),
+
+                new(20, 41, 120, 121),
+                new(140, 161, 120, 121),
+
+                new(60, 81, 140, 141),
+
+                new(20, 61, 160, 161),
+                new(100, 141, 160, 161),
+
+                new(40, 61, 180, 181),
+
+            };
+            return (map, obstacles, default, default);
         }
         
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) PlankPileOne()
@@ -158,7 +204,9 @@ namespace Benchmarking.Thesis.Maps
                 new(10, 41, 32, 33),
 
             };
-            return (map, obstacles, default, default);
+            var robot = new Rectangle(10, 41, 2, 7);
+            var goal = new Rectangle(10, 41, 43, 47);
+            return (map, obstacles, robot, goal);
         }
         
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) PlankPileTwo()
@@ -175,7 +223,9 @@ namespace Benchmarking.Thesis.Maps
                 new(60, 86, 75, 76),
 
             };
-            return (map, obstacles, default, default);
+            var robot = new Rectangle(15, 86, 2, 20);
+            var goal = new Rectangle(15, 86, 80, 97);
+            return (map, obstacles, robot, goal);
         }
         
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) PlankPileThree()
@@ -210,7 +260,9 @@ namespace Benchmarking.Thesis.Maps
                 new(50, 150, 180, 181),
                 new(170, 198, 180, 181)
             };
-            return (map, obstacles, default, default);
+            var robot = new Rectangle(5, 195, 5, 15);
+            var goal = new Rectangle(5, 195, 185, 195);
+            return (map, obstacles, robot, goal);
         }
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) CorridorOne()
         {
@@ -220,7 +272,9 @@ namespace Benchmarking.Thesis.Maps
                 new(13, 37, 0, 21),
                 new(13, 37, 30, 49),
             };
-            return (map, obstacles, default, default);
+            var robot = new Rectangle(3, 8, 5, 45);
+            var goal = new Rectangle(43, 48, 5, 45);
+            return (map, obstacles, robot, goal);
         }
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) CorridorTwo()
         {
@@ -233,7 +287,9 @@ namespace Benchmarking.Thesis.Maps
                 new(13, 30, 30, 49),
                 new(30, 37, 18, 49),
             };
-            return (map, obstacles, default, default);
+            var robot = new Rectangle(3, 8, 5, 45);
+            var goal = new Rectangle(43, 48, 5, 45);
+            return (map, obstacles, robot, goal);
         }
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) CorridorThree()
         {
@@ -251,7 +307,59 @@ namespace Benchmarking.Thesis.Maps
                 new(13, 37, 43, 49),
 
             };
-            return (map, obstacles, default, default);
+            var robot = new Rectangle(3, 8, 5, 45);
+            var goal = new Rectangle(43, 48, 5, 45);
+            return (map, obstacles, robot, goal);
+        }
+
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) BugTrapOne()
+        {
+            var map = MapExt.SetupMapWithBoundary(50, 50);
+            var obstacles = new Rectangle[]
+            {
+                new(10, 41, 15, 16),
+                new(10, 11, 15, 36),
+                new(40, 41, 15, 36),
+
+            };
+            var robot = new Rectangle(10, 41, 3, 7);
+            var goal = new Rectangle(13, 38, 18, 25);
+            return (map, obstacles, robot, goal);
+        }
+
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) BugTrapTwo()
+        {
+            var map = MapExt.SetupMapWithBoundary(50, 50);
+            var obstacles = new Rectangle[]
+            {
+                new(10, 41, 15, 16),
+                new(10, 11, 15, 36),
+                new(40, 41, 15, 36),
+
+                new(10, 16, 35, 36),
+                new(35, 41, 35, 36),
+
+            };
+            var robot = new Rectangle(10, 41, 3, 7);
+            var goal = new Rectangle(13, 38, 18, 25);
+            return (map, obstacles, robot, goal);
+        }
+
+        public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) BugTrapThree()
+        {
+            var map = MapExt.SetupMapWithBoundary(50, 50);
+            var obstacles = new Rectangle[]
+            {
+                new(10, 41, 15, 16),
+                new(10, 11, 15, 36),
+                new(40, 41, 15, 36),
+
+                new(10, 23, 35, 36),
+                new(28, 41, 35, 36),
+            };
+            var robot = new Rectangle(10, 41, 3, 7);
+            var goal = new Rectangle(13, 38, 18, 25);
+            return (map, obstacles, robot, goal);
         }
 
         public static (int[,] map, Robot robot, Point goal) GenerateMap(Func<(int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal)> setup, Random r)
@@ -272,9 +380,9 @@ namespace Benchmarking.Thesis.Maps
 
         public static void FillMap(this int[,] map, Rectangle r, int v)
         {
-            for (var x = r.MinX; x <= r.MaxX; x++)
+            for (var x = r.MinX; x < r.MaxX; x++)
             {
-                for (var y = r.MinY; y <= r.MaxY; y++)
+                for (var y = r.MinY; y < r.MaxY; y++)
                 {
                     map[x, y] = v;
                 }

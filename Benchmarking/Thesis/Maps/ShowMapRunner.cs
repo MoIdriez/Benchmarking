@@ -109,6 +109,24 @@ namespace Benchmarking.Thesis.Maps
             await Show(Wall.CorridorThree);
         }
 
+        [Fact]
+        public async Task BugTrapOne()
+        {
+            await Show(Wall.BugTrapOne);
+        }
+
+        [Fact]
+        public async Task BugTrapTwo()
+        {
+            await Show(Wall.BugTrapTwo);
+        }
+
+        [Fact]
+        public async Task BugTrapThree()
+        {
+            await Show(Wall.BugTrapThree);
+        }
+
 
         private static async Task Show(Func<(int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal)> setup)
         {

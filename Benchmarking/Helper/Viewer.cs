@@ -61,7 +61,7 @@ namespace Benchmarking.Helper
                     else if (map[x, y] == MapExt.GoalSpawn)
                         image.SetPixel(x, y, Color.LightGreen);
                     else
-                        image.SetPixel(x, y, Color.LightSlateGray);
+                        image.SetPixel(x, y, Color.LightYellow);
                 }
             }
 
