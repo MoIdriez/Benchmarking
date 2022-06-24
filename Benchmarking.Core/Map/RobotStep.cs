@@ -4,14 +4,11 @@
     {
         public Point Location { get; }
         public int Visibility { get; }
-        public int AddedVisibility { get; }
-
-        public RobotStep(Point location, int visibility, int addedVisibility)
+        
+        public RobotStep(Point location, int visibility)
         {
             Location = location;
             Visibility = visibility;
-            AddedVisibility = addedVisibility;
         }
-
     }
 }

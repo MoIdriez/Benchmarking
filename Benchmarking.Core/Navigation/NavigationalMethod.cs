@@ -26,8 +26,8 @@ namespace Benchmarking.Core.Navigation
                 //UpdateExploredMap();
                 if (HasSeenGoal)
                 {
-                    RobotStep(StepsTillGoal[0]);
-                    StepsTillGoal.RemoveAt(0);
+                    RobotStep(_stepsTillGoal[0]);
+                    _stepsTillGoal.RemoveAt(0);
                 }
                 else
                 {
@@ -59,46 +59,22 @@ namespace Benchmarking.Core.Navigation
                     ExploredMap[point.X, point.Y] = Map[point.X, point.Y] == MapExt.WallPoint ? MapExt.WallPoint : MapExt.ExploredPoint;
                     if (point.Equals(Goal))
                     {
-                        StepsTillGoal ??= points.GetRange(0, points.IndexOf(point) + 1);
+                        _stepsTillGoal ??= points.GetRange(0, points.IndexOf(point) + 1);
                         HasSeenGoal = true;
                     }
                 }
             }
-            Robot.Step(location, v, av);
+            Robot.Step(location, v);
         }
 
-        //protected void UpdateExploredMap()
-        //{
-        //    var fov = Robot.GetFov();
-        //    var visibility = 0;
-        //    foreach (var line in fov)
-        //    {
-        //        var points = Map.GetAllTillObstruction(line);
-
-        //        foreach (var point in points)
-        //        {
-        //            ExploredMap[point.X, point.Y] = Map[point.X, point.Y];
-        //            if (point.Equals(Goal))
-        //            {
-        //                StepsTillGoal ??= points.GetRange(0, points.IndexOf(point) +1);
-        //                HasSeenGoal = true;
-        //            }
-                        
-        //        }
-
-        //        visibility += points.Count;
-        //    }
-        //    Robot.Visibility(visibility);
-        //}
-
-        private List<Point>? StepsTillGoal;
+        private List<Point>? _stepsTillGoal;
 
         protected abstract void Loop();
         protected abstract string AdditionalMetrics();
 
         public string Result()
         {
-            return $"{HasSeenGoal},{IsStuck},{Time},{Robot.Steps.Count},{MaxIterations}{AdditionalMetrics()}";
+            return $"{HasSeenGoal},{IsStuck},{Time},{Robot.Steps.Count},{AverageVisibility},{AdditionalMetrics()}";
         }
 
         public bool HasSeenGoal;
@@ -112,6 +88,8 @@ namespace Benchmarking.Core.Navigation
         
         public int IsStuckCount { get; set; } = 40;
         public int IsStuckVerifier { get; set; } = 10;
+
+        public double AverageVisibility => Robot.Steps.Average(s => s.Visibility);
 
         public bool IsStuck => Robot.Steps.Count > IsStuckCount && Robot.Steps.TakeLast(IsStuckCount).GroupBy(g => g).Any(g => g.Count() >= IsStuckVerifier);
         //public bool IsStuck => Robot.Steps.Count > 10 && Robot.Steps.TakeLast(10).All(s => s.Equals(Robot.Steps.Last()));

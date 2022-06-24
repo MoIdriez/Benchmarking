@@ -1,14 +1,48 @@
 ﻿using Benchmarking.Core.Map;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Benchmarking.Thesis.Maps
 {
-    public static class Wall
+    public static class ThesisMaps
     {
+        public static (string mapName, int[,] map, Robot robot, Point goal)[] GetMaps()
+        {
+            var r = new Random();
+
+            var maps = new Func<(int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal)>[]
+            {
+                WallOne,
+                WallTwo,
+                WallThree,
+
+                SlitOne,
+                SlitTwo,
+                SlitThree,
+
+                RoomOne,
+                RoomTwo,
+                RoomThree,
+
+                PlankPileOne,
+                PlankPileTwo,
+                PlankPileThree,
+
+                CorridorOne,
+                CorridorTwo,
+                CorridorThree,
+
+                BugTrapOne,
+                BugTrapTwo,
+                BugTrapThree,
+            };
+
+            return maps.Select(m =>
+            {
+                var generated = GenerateMap(m, r);
+                return (m.Method.Name, generated.map, generated.robot, generated.goal);
+            }).ToArray();
+        }
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) WallOne()
         {
             var map = MapExt.SetupMapWithBoundary(50, 50);
@@ -42,6 +76,7 @@ namespace Benchmarking.Thesis.Maps
             var goal = new Rectangle(27, 47, 2, 47);
             return (map, obstacles, robot, goal);
         }
+        
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) SlitOne()
         {
             var map = MapExt.SetupMapWithBoundary(50, 50);
@@ -78,6 +113,7 @@ namespace Benchmarking.Thesis.Maps
             var goal = new Rectangle(27, 47, 2, 47);
             return (map, obstacles, robot, goal);
         }
+        
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) RoomOne()
         {
             var map = MapExt.SetupMapWithBoundary(50, 50);
@@ -104,7 +140,6 @@ namespace Benchmarking.Thesis.Maps
             };
             return (map, obstacles, default, default);
         }
-
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) RoomTwo()
         {
             var map = MapExt.SetupMapWithBoundary(100, 100);
@@ -141,7 +176,6 @@ namespace Benchmarking.Thesis.Maps
             };
             return (map, obstacles, default, default);
         }
-
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) RoomThree()
         {
             var map = MapExt.SetupMapWithBoundary(200, 200);
@@ -208,7 +242,6 @@ namespace Benchmarking.Thesis.Maps
             var goal = new Rectangle(10, 41, 43, 47);
             return (map, obstacles, robot, goal);
         }
-        
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) PlankPileTwo()
         {
             var map = MapExt.SetupMapWithBoundary(100, 100);
@@ -227,7 +260,6 @@ namespace Benchmarking.Thesis.Maps
             var goal = new Rectangle(15, 86, 80, 97);
             return (map, obstacles, robot, goal);
         }
-        
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) PlankPileThree()
         {
             var map = MapExt.SetupMapWithBoundary(200, 200);
@@ -264,6 +296,7 @@ namespace Benchmarking.Thesis.Maps
             var goal = new Rectangle(5, 195, 185, 195);
             return (map, obstacles, robot, goal);
         }
+        
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) CorridorOne()
         {
             var map = MapExt.SetupMapWithBoundary(50, 50);
@@ -326,7 +359,6 @@ namespace Benchmarking.Thesis.Maps
             var goal = new Rectangle(13, 38, 18, 25);
             return (map, obstacles, robot, goal);
         }
-
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) BugTrapTwo()
         {
             var map = MapExt.SetupMapWithBoundary(50, 50);
@@ -344,7 +376,6 @@ namespace Benchmarking.Thesis.Maps
             var goal = new Rectangle(13, 38, 18, 25);
             return (map, obstacles, robot, goal);
         }
-
         public static (int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal) BugTrapThree()
         {
             var map = MapExt.SetupMapWithBoundary(50, 50);

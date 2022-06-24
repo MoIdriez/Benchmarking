@@ -16,13 +16,13 @@ namespace Benchmarking.Core.Map
         public Point Location => Steps.Last().Location;
         public Robot(Point location, int fovLength)
         {
-            Steps = new List<RobotStep> { new(location, 0, 0) };
+            Steps = new List<RobotStep> { new(location, 0) };
             FovLength = fovLength;
         }
 
-        public void Step(Point p, int v, int av)
+        public void Step(Point p, int v)
         {
-            Steps.Add(new RobotStep(p, v, av));
+            Steps.Add(new RobotStep(p, v));
         }
     }
 }

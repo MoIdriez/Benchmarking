@@ -22,109 +22,109 @@ namespace Benchmarking.Thesis.Maps
         [Fact]
         public async Task WallOne()
         {
-            await Show(Wall.WallOne);
+            await Show(ThesisMaps.WallOne);
         }
 
         [Fact]
         public async Task WallTwo()
         {
-            await Show(Wall.WallTwo);
+            await Show(ThesisMaps.WallTwo);
         }
 
         [Fact]
         public async Task WallThree()
         {
-            await Show(Wall.WallThree);
+            await Show(ThesisMaps.WallThree);
         }
 
         [Fact]
         public async Task SlitOne()
         {
-            await Show(Wall.SlitOne);
+            await Show(ThesisMaps.SlitOne);
         }
 
         [Fact]
         public async Task SlitTwo()
         {
-            await Show(Wall.SlitTwo);
+            await Show(ThesisMaps.SlitTwo);
         }
 
         [Fact]
         public async Task SlitThree()
         {
-            await Show(Wall.SlitThree);
+            await Show(ThesisMaps.SlitThree);
         }
 
         [Fact]
         public async Task RoomOne()
         {
-            await Show(Wall.RoomOne);
+            await Show(ThesisMaps.RoomOne);
         }
 
         [Fact]
         public async Task RoomTwo()
         {
-            await Show(Wall.RoomTwo);
+            await Show(ThesisMaps.RoomTwo);
         }
 
         [Fact]
         public async Task RoomThree()
         {
-            await Show(Wall.RoomThree);
+            await Show(ThesisMaps.RoomThree);
         }
 
         [Fact]
         public async Task PlankPileOne()
         {
-            await Show(Wall.PlankPileOne);
+            await Show(ThesisMaps.PlankPileOne);
         }
 
         [Fact]
         public async Task PlankPileTwo()
         {
-            await Show(Wall.PlankPileTwo);
+            await Show(ThesisMaps.PlankPileTwo);
         }
 
         [Fact]
         public async Task PlankPileThree()
         {
-            await Show(Wall.PlankPileThree);
+            await Show(ThesisMaps.PlankPileThree);
         }
 
         [Fact]
         public async Task CorridorOne()
         {
-            await Show(Wall.CorridorOne);
+            await Show(ThesisMaps.CorridorOne);
         }
 
         [Fact]
         public async Task CorridorTwo()
         {
-            await Show(Wall.CorridorTwo);
+            await Show(ThesisMaps.CorridorTwo);
         }
 
         [Fact]
         public async Task CorridorThree()
         {
-            await Show(Wall.CorridorThree);
+            await Show(ThesisMaps.CorridorThree);
         }
 
         [Fact]
         public async Task BugTrapOne()
         {
-            await Show(Wall.BugTrapOne);
+            await Show(ThesisMaps.BugTrapOne);
         }
 
         [Fact]
         public async Task BugTrapTwo()
         {
-            await Show(Wall.BugTrapTwo);
+            await Show(ThesisMaps.BugTrapTwo);
         }
 
         [Fact]
         public async Task BugTrapThree()
         {
-            await Show(Wall.BugTrapThree);
+            await Show(ThesisMaps.BugTrapThree);
         }
 
 
