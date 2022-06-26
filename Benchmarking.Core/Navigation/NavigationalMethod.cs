@@ -71,7 +71,7 @@ namespace Benchmarking.Core.Navigation
 
         public string Result()
         {
-            return $"{HasSeenGoal},{IsStuck},{Time},{Robot.Steps.Count},{AverageVisibility}{AdditionalMetrics()}";
+            return $"{HasSeenGoal},{IsStuck},{Time},{Robot.Steps.Count},{AverageVisibility},{DistanceToGoal}{AdditionalMetrics()}";
         }
 
         public bool HasSeenGoal;
@@ -85,6 +85,8 @@ namespace Benchmarking.Core.Navigation
         
         public int IsStuckCount { get; set; } = 40;
         public int IsStuckVerifier { get; set; } = 10;
+
+        public double DistanceToGoal => Robot.Location.DistanceTo(Goal);
 
         public double AverageVisibility => Robot.Steps.Average(s => s.Visibility);
 

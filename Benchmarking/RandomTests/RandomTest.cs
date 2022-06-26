@@ -28,6 +28,37 @@ namespace Benchmarking.RandomTests
         }
 
         [Fact]
+        public void PathDivs()
+        {
+            var pts = new[]
+            {
+                new Point(0, 0),
+                new Point(1, 1),
+                new Point(2, 2),
+                new Point(3, 3),
+            };
+
+            var lineSegments = MathExt.ToSegments(pts).ToArray();
+            _testOutputHelper.WriteLine($"Smoothness: {MathExt.PathSmoothness(lineSegments)}");
+        }
+
+        [Fact]
+        public void PathDivs2()
+        {
+            var pts = new[]
+            {
+                new Point(0, 0),
+                new Point(1, 1),
+                new Point(1, 2),
+                new Point(0, 3),
+                new Point(1, 4),
+            };
+
+            var lineSegments = MathExt.ToSegments(pts).ToArray();
+            _testOutputHelper.WriteLine($"Smoothness: {MathExt.PathSmoothness(lineSegments)}");
+        }
+
+        [Fact]
         public void IsStuckTester()
         {
             var steps = new List<Point>

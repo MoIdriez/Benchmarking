@@ -41,6 +41,25 @@ namespace Benchmarking.Core.Map
             return Math.Atan2(p2.Y - p1.Y, p2.X - p1.X).ToDeg();
         }
 
+        public static double PathSmoothness(LineSegment[] segments)
+        {
+            var sum = 0.0;
+            for (var i = 0; i < segments.Length - 1; i++)
+            {
+                sum += Math.Pow(segments[i].GetAngleBetween(segments[i + 1]), 2);
+            }
+
+            return 1 / (double)segments.Length * sum;
+        }
+
+        public static IEnumerable<LineSegment> ToSegments(Point[] points)
+        {
+            for (var i = 0; i < points.Length - 1; i++)
+            {
+                yield return new LineSegment(points[i], points[i + 1]);
+            }
+        }
+
         public static Point GetEndPoint(this Point p, double angle, double length)
         {
             return new Point(

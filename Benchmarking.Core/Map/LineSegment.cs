@@ -22,6 +22,15 @@ namespace Benchmarking.Core.Map
             End = start.GetEndPoint(angle, length);
         }
 
+        public double GetAngleBetween(LineSegment segment)
+        {
+            var theta1 = Math.Atan2(Start.Y - End.Y, Start.X - End.X);
+            var theta2 = Math.Atan2(segment.Start.Y - segment.End.Y, segment.Start.X - segment.End.X);
+            var diff = Math.Abs(theta1 - theta2);
+
+            return Math.Min(diff, Math.Abs(180 - diff));
+        }
+
         public override string ToString()
         {
             return $"{Start}-{End}";
