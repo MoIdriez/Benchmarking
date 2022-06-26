@@ -39,7 +39,7 @@ namespace Benchmarking.RandomTests
             };
 
             var lineSegments = MathExt.ToSegments(pts).ToArray();
-            _testOutputHelper.WriteLine($"Smoothness: {MathExt.PathSmoothness(lineSegments)}");
+            _testOutputHelper.WriteLine($"Smoothness: {MathExt.GetPathSmoothness(lineSegments)}");
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace Benchmarking.RandomTests
             };
 
             var lineSegments = MathExt.ToSegments(pts).ToArray();
-            _testOutputHelper.WriteLine($"Smoothness: {MathExt.PathSmoothness(lineSegments)}");
+            _testOutputHelper.WriteLine($"Smoothness: {MathExt.GetPathSmoothness(lineSegments)}");
         }
 
         [Fact]
