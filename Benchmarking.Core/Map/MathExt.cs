@@ -49,6 +49,11 @@ namespace Benchmarking.Core.Map
             );
         }
 
+        public static double Percentage(this double v, double m)
+        {
+            return v / m * 100;
+        }
+
         public static double Percentage(this int v, int m)
         {
             return (double)v / m * 100;

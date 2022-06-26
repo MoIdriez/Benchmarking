@@ -22,22 +22,26 @@ namespace Benchmarking.Thesis.ChapterThree
         {
             _output = output;
         }
-
-        [Fact]
-        public void Test()
-        {
-            var t = ThesisMaps.WallOne;
-            _output.WriteLine(t.Method.Name);
-        }
-
+        
         [Fact]
         public async Task BasicRunAndView()
         {
-            var (map, robot, goal) = ThesisMaps.GenerateMap(ThesisMaps.WallOne, _random);
-            var settings = new PotentialFieldSettings(10, 1, 1);
-            var result = new PotentialField(map, robot, goal, 1000, settings).Run();
-            _output.WriteLine(result);
-            await Viewer.Image($"bpf.png", map, robot, goal);
+            var finished = false;
+            while (!finished)
+            {
+                var (map, robot, goal) = ThesisMaps.GenerateMap(ThesisMaps.SlitThree, _random);
+                var settings = new PotentialFieldSettings(2, 2, 3);
+                var pheromones = new PheromoneSettings(1, 6, 6);
+                //var result = new PotentialField(map, robot, goal, 3000, settings).Run();
+                var result = new PheromonePotentialField(map, robot, goal, 3000, settings, pheromones).Run();
+                //finished = new BasicPotentialFieldAnalysis.Data($"MapTest,{result}").Success;
+                finished = new PheromonePotentialFieldAnalysis.PfData($"MapTest,{result}").Success;
+                if (finished)
+                {
+                    _output.WriteLine(result);
+                    await Viewer.Image($"ppf-{Guid.NewGuid()}.png", map, robot, goal);
+                }
+            }
         }
 
         [Fact]
@@ -109,19 +113,47 @@ namespace Benchmarking.Thesis.ChapterThree
             for (var or = 1; or <= 10; or += 1)
             for (var oc = 1; oc <= 10; oc += 1)
             for (var ac = 1; ac <= 10; ac += 1)
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 20; i++)
             {
                 var settings = new PotentialFieldSettings(or, oc, ac);
-
+                var maps = ThesisMaps.GetMaps();
+                tasks.AddRange(maps.Select(map => RunMethod(sn, map.map, map.robot, map.goal, map.mapName, settings)));
             }
+            sn.Run(tasks.Count, 1000);
+            await Task.WhenAll(tasks);
+            sn.Result();
         }
 
+        [Fact]
+        public async Task ExtensivePheromoneRun()
+        {
+            var tasks = new List<Task>();
+            var sn = new StateNotifier(_output, $"PF-{Guid.NewGuid()}.txt");
 
-
-
+            for (var c = 1; c <= 10; c += 1)
+            for (var si = 1; si <= 10; si += 1)
+            for (var r = 1; r <= 10; r += 1)
+            for (var i = 0; i < 20; i++)
+            {
+                var settings = new PotentialFieldSettings(2, 2, 3);
+                var pheromoneSettings = new PheromoneSettings(c, si, r);
+                var maps = ThesisMaps.GetMaps();
+                tasks.AddRange(maps.Select(map => RunPheromoneMethod(sn, map.map, map.robot, map.goal, map.mapName, settings, pheromoneSettings)));
+            }
+            sn.Run(tasks.Count, 1000);
+            await Task.WhenAll(tasks);
+            sn.Result();
+        }
+        
         public static async Task RunMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName, PotentialFieldSettings settings)
         {
             var result = await Task.Run(() => new PotentialField(map, robot, goal, 1000, settings).Run());
+            sn.NotifyCompletion($"{mapName},{result}");
+        }
+        
+        public static async Task RunPheromoneMethod(StateNotifier sn, int[,] map, Robot robot, Point goal, string mapName, PotentialFieldSettings settings, PheromoneSettings pheromoneSettings)
+        {
+            var result = await Task.Run(() => new PheromonePotentialField(map, robot, goal, 1000, settings, pheromoneSettings).Run());
             sn.NotifyCompletion($"{mapName},{result}");
         }
     }

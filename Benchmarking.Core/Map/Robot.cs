@@ -20,7 +20,7 @@ namespace Benchmarking.Core.Map
             FovLength = fovLength;
         }
 
-        public void Step(Point p, int v)
+        public void Step(Point p, double v)
         {
             Steps.Add(new RobotStep(p, v));
         }

@@ -12,7 +12,7 @@ namespace Benchmarking.Core.Navigation
             Robot = robot;
             Goal = goal;
             MaxIterations = maxIterations;
-            ExploredMap = new int[map.Width(), map.Height()];
+            ExploredMap = map; //new int[map.Width(), map.Height()];
         }
         
         public string Run()
@@ -45,7 +45,6 @@ namespace Benchmarking.Core.Navigation
         {
             var fov = Robot.GetFov().ToList();
             var v = 0;
-            var av = 0;
 
             foreach (var line in fov)
             {
@@ -54,8 +53,6 @@ namespace Benchmarking.Core.Navigation
 
                 foreach (var point in points)
                 {
-                    if (ExploredMap[point.X, point.Y] == MapExt.DefaultValue) av++;
-
                     ExploredMap[point.X, point.Y] = Map[point.X, point.Y] == MapExt.WallPoint ? MapExt.WallPoint : MapExt.ExploredPoint;
                     if (point.Equals(Goal))
                     {
@@ -64,7 +61,7 @@ namespace Benchmarking.Core.Navigation
                     }
                 }
             }
-            Robot.Step(location, v);
+            Robot.Step(location, v/(double)fov.Count);
         }
 
         private List<Point>? _stepsTillGoal;
@@ -74,7 +71,7 @@ namespace Benchmarking.Core.Navigation
 
         public string Result()
         {
-            return $"{HasSeenGoal},{IsStuck},{Time},{Robot.Steps.Count},{AverageVisibility},{AdditionalMetrics()}";
+            return $"{HasSeenGoal},{IsStuck},{Time},{Robot.Steps.Count},{AverageVisibility}{AdditionalMetrics()}";
         }
 
         public bool HasSeenGoal;
