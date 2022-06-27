@@ -31,9 +31,14 @@ namespace Benchmarking.Thesis.ChapterThree
                 Time = long.Parse(items[3]);
                 Steps = int.Parse(items[4]);
                 AverageVisibility = double.Parse(items[5]);
-                ObstacleRange = int.Parse(items[6]);
-                ObstacleConstant = int.Parse(items[7]);
-                AttractiveConstant = int.Parse(items[8]);
+                DistanceToGoal = double.Parse(items[6]);
+                PathSmoothness = double.Parse(items[7]);
+                ObstacleRange = int.Parse(items[8]);
+                ObstacleConstant = int.Parse(items[9]);
+                AttractiveConstant = int.Parse(items[10]);
+                //ObstacleRange = int.Parse(items[6]);
+                //ObstacleConstant = int.Parse(items[7]);
+                //AttractiveConstant = int.Parse(items[8]);
             }
             public string MapName { get; set; }
             public bool Success { get; set; }
@@ -41,9 +46,34 @@ namespace Benchmarking.Thesis.ChapterThree
             public long Time { get; set; }
             public int Steps { get; set; }
             public double AverageVisibility { get; set; }
+            public double DistanceToGoal { get; set; }
+            public double PathSmoothness { get; set; }
             public int ObstacleRange { get; set; }
             public int ObstacleConstant { get; set; }
             public int AttractiveConstant { get; set; }
+        }
+
+        [Fact]
+        public void ExtensiveSearch2Analysis()
+        {
+            _output.WriteLine("Extensive Search 2 Analysis");
+            var all = File.ReadAllLines(FileRef.ExtensiveSearch2).Select(l => new Data(l)).ToList();
+
+            foreach (var g in all.GroupBy(g => g.MapName).OrderBy(g => CompareFields.ToOrderValue(g.Key)))
+            {
+                _output.WriteLine($"Success {g.Key} rate: {g.Count(r => r.Success)} / {g.Count()} ({g.Count(r => r.Success).Percentage(g.Count())}%)");
+            }
+            _output.WriteLine($"==========================================================");
+            _output.WriteLine($"Max: {all.Where(a => a.Success).Max(s => s.Steps)}, Min:{all.Where(a => a.Success).Min(s => s.Steps)}");
+            var enumerable = all
+                .GroupBy(g => new { g.ObstacleRange, g.ObstacleConstant, g.AttractiveConstant })
+                .Select(g => new { g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()), Distance = g.Average(a => a.Steps), Smoothness = g.Average(a => a.PathSmoothness), DG = g.Average(a => a.DistanceToGoal) })
+                .OrderByDescending(g => g.Success)
+                ;
+            foreach (var g in enumerable)
+            {
+                _output.WriteLine($"{g.Key.ObstacleRange},{g.Key.ObstacleConstant},{g.Key.AttractiveConstant}: Success = {g.Success}, Steps = {Math.Round(g.Distance, 2)}, DistanceToGoal = {Math.Round(g.DG, 2)}, Smoothness = {Math.Round(g.Smoothness, 2)}");
+            }
         }
 
         [Fact]
@@ -58,15 +88,15 @@ namespace Benchmarking.Thesis.ChapterThree
             }
             _output.WriteLine($"==========================================================");
             _output.WriteLine($"Max: {all.Where(a => a.Success).Max(s => s.Steps)}, Min:{all.Where(a => a.Success).Min(s => s.Steps)}");
-            //var enumerable = all
-            //    .GroupBy(g => new { g.ObstacleRange, g.ObstacleConstant, g.AttractiveConstant })
-            //    .Select(g => new { g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()) })
-            //    .OrderByDescending(g => g.Success)
-            //    ;
-            //foreach (var g in enumerable)
-            //{
-            //    _output.WriteLine($"{g.Key.ObstacleRange},{g.Key.ObstacleConstant},{g.Key.AttractiveConstant},{g.Success}");
-            //}
+            var enumerable = all
+                .GroupBy(g => new { g.ObstacleRange, g.ObstacleConstant, g.AttractiveConstant })
+                .Select(g => new { g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()) })
+                .OrderByDescending(g => g.Success)
+                ;
+            foreach (var g in enumerable)
+            {
+                _output.WriteLine($"{g.Key.ObstacleRange},{g.Key.ObstacleConstant},{g.Key.AttractiveConstant},{g.Success}");
+            }
 
             //_output.WriteLine($"==========================================================");
 

@@ -135,7 +135,7 @@ namespace Benchmarking.Thesis.ChapterThree
             for (var r = 1; r <= 10; r += 1)
             for (var i = 0; i < 20; i++)
             {
-                var settings = new PotentialFieldSettings(2, 2, 3);
+                var settings = new PotentialFieldSettings(3, 4, 9);
                 var pheromoneSettings = new PheromoneSettings(c, si, r);
                 var maps = ThesisMaps.GetMaps();
                 tasks.AddRange(maps.Select(map => RunPheromoneMethod(sn, map.map, map.robot, map.goal, map.mapName, settings, pheromoneSettings)));

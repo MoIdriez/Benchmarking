@@ -12,7 +12,7 @@ namespace Benchmarking.Core.Navigation
             Robot = robot;
             Goal = goal;
             MaxIterations = maxIterations;
-            ExploredMap = map; //new int[map.Width(), map.Height()];
+            ExploredMap = new int[map.Width(), map.Height()];
         }
         
         public string Run()
