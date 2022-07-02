@@ -6,9 +6,9 @@ namespace Benchmarking.Thesis.Maps
 {
     public static class ThesisMaps
     {
-        public static (string mapName, int[,] map, Robot robot, Point goal)[] GetMaps()
+        public static (string mapName, int[,] map, Robot robot, Point goal)[] GetMaps(Random? rr = null)
         {
-            var r = new Random();
+            var r = rr ?? new Random();
 
             var maps = new Func<(int[,] map, Rectangle[] obstacles, Rectangle? robot, Rectangle? goal)>[]
             {
@@ -411,9 +411,9 @@ namespace Benchmarking.Thesis.Maps
 
         public static void FillMap(this int[,] map, Rectangle r, int v)
         {
-            for (var x = r.MinX; x < r.MaxX; x++)
+            for (var x = r.MinX; x <= r.MaxX; x++)
             {
-                for (var y = r.MinY; y < r.MaxY; y++)
+                for (var y = r.MinY; y <= r.MaxY; y++)
                 {
                     map[x, y] = v;
                 }

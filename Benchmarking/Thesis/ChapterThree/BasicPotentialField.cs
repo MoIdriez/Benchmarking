@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Benchmarking.Core.Map;
+using Benchmarking.Core.Navigation.Dijkstra;
 using Benchmarking.Core.Navigation.Models;
 using Benchmarking.Core.Navigation.Reactive;
 using Benchmarking.Helper;
@@ -27,20 +28,26 @@ namespace Benchmarking.Thesis.ChapterThree
         public async Task BasicRunAndView()
         {
             var finished = false;
-            while (!finished)
-            {
-                var (map, robot, goal) = ThesisMaps.GenerateMap(ThesisMaps.SlitThree, _random);
-                var settings = new PotentialFieldSettings(2, 2, 3);
-                var pheromones = new PheromoneSettings(1, 6, 6);
+            //while (!finished)
+            //{
+                var (map, robot, goal) = ThesisMaps.GenerateMap(ThesisMaps.BugTrapThree, _random);
+                //var settings = new PotentialFieldSettings(2, 2, 3);
+                //var pheromones = new PheromoneSettings(1, 6, 6);
                 //var result = new PotentialField(map, robot, goal, 3000, settings).Run();
-                var result = new PheromonePotentialField(map, robot, goal, 3000, settings, pheromones).Run();
+                //var result = new PheromonePotentialField(map, robot, goal, 3000, settings, pheromones).Run();
+                var result = new AStar(map, robot, goal, 3000).Run();
                 //finished = new BasicPotentialFieldAnalysis.Data($"MapTest,{result}").Success;
-                finished = new PheromonePotentialFieldAnalysis.PfData($"MapTest,{result}").Success;
-                if (finished)
-                {
+                //finished = new PheromonePotentialFieldAnalysis.PfData($"MapTest,{result}").Success;
+                //if (finished)
+                //{
                     _output.WriteLine(result);
                     await Viewer.Image($"ppf-{Guid.NewGuid()}.png", map, robot, goal);
-                }
+            //    }
+            //}
+
+            foreach (var step in robot.Steps)
+            {
+                _output.WriteLine($"{step.Location} - {map[step.Location.X, step.Location.Y]}");
             }
         }
 

@@ -13,7 +13,7 @@ namespace Benchmarking.Core.Navigation.Dijkstra
         private int _step;
         private List<Point> _path = new();
         public int NewPlanCount { get; set; }
-        public AStar(int[,] fullMap, Robot robot, Point goal, int maxIterations) : base(fullMap, robot, goal, maxIterations) { }
+        public AStar(int[,] fullMap, Robot robot, Point goal, int maxIterations, bool baseLine = false) : base(fullMap, robot, goal, maxIterations, baseLine) { }
 
         protected override void Loop()
         {
@@ -22,7 +22,7 @@ namespace Benchmarking.Core.Navigation.Dijkstra
 
             var nextStep = _path[_step];
 
-            if (ExploredMap.CanStepTo(Robot.Location, nextStep))
+            if (Map.CanStepTo(Robot.Location, nextStep))
             {
                 RobotStep(nextStep);
                 _step++;

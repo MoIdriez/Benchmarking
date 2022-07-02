@@ -28,7 +28,7 @@ namespace Benchmarking.Thesis.ChapterThree
             var tasks = new List<Task>();
             var sn = new StateNotifier(_output, $"BaseLine-{Guid.NewGuid()}.txt");
 
-            for (var i = 0; i < 20; i++)
+            for (var i = 0; i < 100; i++)
             {
                 var maps = ThesisMaps.GetMaps();
                 tasks.AddRange(maps.Select(map => RunMethod(sn, map.map, map.robot, map.goal, map.mapName)));
@@ -43,48 +43,45 @@ namespace Benchmarking.Thesis.ChapterThree
         {
             _output.WriteLine("BaseLine Calculations");
 
-            var all = File.ReadAllLines(FileRef.BaseLine).Select(l => new Data(l)).ToList();
+            var all = File.ReadAllLines(FileRef.BaseLine).Select(l => new Data(l) as IData).ToList();
             
-            _output.WriteLine("=============");
             _output.WriteLine("===SUCCESS===");
-            _output.WriteLine("=============");
-            // success per map type
-            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()) }))
-            {
-                _output.WriteLine($"{mapType.Key}: {mapType.Success}");
-            }
-
-            _output.WriteLine("=============");
+            CalculateSuccess(all);
+            
             _output.WriteLine("===MOVEABLE===");
-            _output.WriteLine("=============");
             foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, IsStuck = g.Count(r => r.IsStuck).Percentage(g.Count()) }))
             {
                 _output.WriteLine($"{mapType.Key}: {Math.Max(0, 100 - mapType.IsStuck)}");
             }
-
-            _output.WriteLine("=============");
             _output.WriteLine("===PATH===");
-            _output.WriteLine("=============");
             foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, PathLength = g.Average(r => r.Steps) }))
             {
-                _output.WriteLine($"{mapType.Key}: {PathCompare(mapType.Key, mapType.PathLength)}");
+                _output.WriteLine($"{mapType.Key}: {Compare(PathOffSet, mapType.Key, mapType.PathLength)}");
             }
-
-            _output.WriteLine("=============");
             _output.WriteLine("===DURATION===");
-            _output.WriteLine("=============");
             foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, Duration = g.Average(r => r.Time) }))
             {
-                _output.WriteLine($"{mapType.Key}: {TimeCompare(mapType.Key, mapType.Duration)}");
+                _output.WriteLine($"{mapType.Key}: {Compare(TimeOffset, mapType.Key, mapType.Duration)}");
             }
-
-            _output.WriteLine("=============");
             _output.WriteLine("===VISIBILITY===");
-            _output.WriteLine("=============");
-            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, Visibility = g.Average(r => r.AverageVisibility) }))
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, Visibility = (g.Average(r => r.AverageVisibility) - 5).Percentage(28.03) }))
             {
                 _output.WriteLine($"{mapType.Key}: {mapType.Visibility}");
-                //_output.WriteLine($"{mapType.Key}: {TimeCompare(mapType.Key, mapType.Duration)}");
+            }
+
+            _output.WriteLine("===PathSmoothness===");
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, PathSmoothness = g.Average(r => r.PathSmoothness) }))
+            {
+                _output.WriteLine($"{mapType.Key}: {mapType.PathSmoothness})");
+            }
+        }
+
+        private void CalculateSuccess(List<IData> all)
+        {
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key))
+                         .Select(g => new {g.Key, Success = g.Count(r => r.Success).Percentage(g.Count())}))
+            {
+                _output.WriteLine($"{mapType.Key}: {mapType.Success}");
             }
         }
 
@@ -93,78 +90,83 @@ namespace Benchmarking.Thesis.ChapterThree
             var result = await Task.Run(() => new AStar(map, robot, goal, 1000).Run());
             sn.NotifyCompletion($"{mapName},{result}");
         }
-
-        public double TimeCompare(string mapName, double v, int scale = 3)
+        
+        public double Compare(Func<string, double> func, string mapName, double v, int scale = 3)
         {
-            var offset = TimeOffset(mapName);
-            var max = v * scale - offset;
-            return 100 - (v - offset).Percentage(max);
-        }
-
-        public double PathCompare(string mapName, double v, int scale = 3)
-        {
-            var offset = PathOffSet(mapName);
+            var offset = func.Invoke(mapName);
             var max = v * scale - offset;
             return 100 - (v - offset).Percentage(max);
         }
 
         public double TimeOffset(string mapName)
         {
-            if (mapName == "WallOne") return 92.25;
-            if (mapName == "WallTwo") return 91.45;
-            if (mapName == "WallThree") return 113.2;
+            if (mapName == "WallOne") return 92.33;
+            if (mapName == "WallTwo") return 89.59;
+            if (mapName == "WallThree") return 109.51;
 
-            if (mapName == "SlitOne") return 95.45;
-            if (mapName == "SlitTwo") return 78.1;
-            if (mapName == "SlitThree") return 89;
+            if (mapName == "SlitOne") return 86.41;
+            if (mapName == "SlitTwo") return 90.21;
+            if (mapName == "SlitThree") return 87.34;
 
-            if (mapName == "RoomOne") return 61.35;
-            if (mapName == "RoomTwo") return 159.5;
-            if (mapName == "RoomThree") return 466.65;
+            if (mapName == "RoomOne") return 64.12;
+            if (mapName == "RoomTwo") return 159.03;
+            if (mapName == "RoomThree") return 465.19;
 
-            if (mapName == "PlankPileOne") return 115.65;
-            if (mapName == "PlankPileTwo") return 304.4;
-            if (mapName == "PlankPileThree") return 1040.5;
+            if (mapName == "PlankPileOne") return 117.55;
+            if (mapName == "PlankPileTwo") return 309.01;
+            if (mapName == "PlankPileThree") return 1129.79;
 
-            if (mapName == "CorridorOne") return 108.4;
-            if (mapName == "CorridorTwo") return 106.6;
-            if (mapName == "CorridorThree") return 177.2;
+            if (mapName == "CorridorOne") return 109.43;
+            if (mapName == "CorridorTwo") return 111.03;
+            if (mapName == "CorridorThree") return 190.85;
 
-            if (mapName == "BugTrapOne") return 127.9;
-            if (mapName == "BugTrapTwo") return 133.45;
-            if (mapName == "BugTrapThree") return 154.5;
+            if (mapName == "BugTrapOne") return 132.6;
+            if (mapName == "BugTrapTwo") return 137.69;
+            if (mapName == "BugTrapThree") return 150.9;
             return -1;
         }
 
         public double PathOffSet(string mapName)
         {
-            if (mapName == "WallOne") return 30;
-            if (mapName == "WallTwo") return 33.6;
-            if (mapName == "WallThree") return 42.05;
+            if (mapName == "WallOne") return 31.36;
+            if (mapName == "WallTwo") return 31.72;
+            if (mapName == "WallThree") return 40.98;
 
-            if (mapName == "SlitOne") return 30.7;
-            if (mapName == "SlitTwo") return 28.65;
-            if (mapName == "SlitThree") return 32.9;
+            if (mapName == "SlitOne") return 30.01;
+            if (mapName == "SlitTwo") return 31.9;
+            if (mapName == "SlitThree") return 32.47;
 
-            if (mapName == "RoomOne") return 25.2;
-            if (mapName == "RoomTwo") return 56.1;
-            if (mapName == "RoomThree") return 123.9;
+            if (mapName == "RoomOne") return 26.32;
+            if (mapName == "RoomTwo") return 53.43;
+            if (mapName == "RoomThree") return 113.89;
 
-            if (mapName == "PlankPileOne") return 45.45;
-            if (mapName == "PlankPileTwo") return 88.5;
-            if (mapName == "PlankPileThree") return 206.05;
+            if (mapName == "PlankPileOne") return 45.38;
+            if (mapName == "PlankPileTwo") return 88.67;
+            if (mapName == "PlankPileThree") return 200.3;
 
-            if (mapName == "CorridorOne") return 48.15;
-            if (mapName == "CorridorTwo") return 48.1;
-            if (mapName == "CorridorThree") return 85.85;
+            if (mapName == "CorridorOne") return 47.17;
+            if (mapName == "CorridorTwo") return 48.83;
+            if (mapName == "CorridorThree") return 87.86;
 
-            if (mapName == "BugTrapOne") return 53.25;
-            if (mapName == "BugTrapTwo") return 57.25;
-            if (mapName == "BugTrapThree") return 64.3;
+            if (mapName == "BugTrapOne") return 54.2;
+            if (mapName == "BugTrapTwo") return 57.38;
+            if (mapName == "BugTrapThree") return 63.74;
             return -1;
         }
 
-        public class Data
+        public interface IData
+        {
+            public string MapName { get; set; }
+            public bool Success { get; set; }
+            public bool IsStuck { get; set; }
+            public long Time { get; set; }
+            public int Steps { get; set; }
+            public double AverageVisibility { get; set; }
+            public double DistanceToGoal { get; set; }
+            public double PathSmoothness { get; set; }
+        }
+
+        public class Data : IData
         {
             public Data(string line)
             {
@@ -176,14 +178,19 @@ namespace Benchmarking.Thesis.ChapterThree
                 Time = long.Parse(items[3]);
                 Steps = int.Parse(items[4]);
                 AverageVisibility = double.Parse(items[5]);
-                NewPlanCount = int.Parse(items[6]);
+                DistanceToGoal = double.Parse(items[6]);
+                PathSmoothness = double.Parse(items[7]);
+                NewPlanCount = int.Parse(items[8]);
             }
+
             public string MapName { get; set; }
             public bool Success { get; set; }
             public bool IsStuck { get; set; }
             public long Time { get; set; }
             public int Steps { get; set; }
             public double AverageVisibility { get; set; }
+            public double DistanceToGoal { get; set; }
+            public double PathSmoothness { get; set; }
             public int NewPlanCount { get; set; }
         }
     }

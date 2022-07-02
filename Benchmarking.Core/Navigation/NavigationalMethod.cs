@@ -6,13 +6,13 @@ namespace Benchmarking.Core.Navigation
 {
     public abstract class NavigationalMethod
     {
-        protected NavigationalMethod(int[,] map, Robot robot, Point goal, int maxIterations)
+        protected NavigationalMethod(int[,] map, Robot robot, Point goal, int maxIterations, bool baseLine = false)
         {
             Map = map;
             Robot = robot;
             Goal = goal;
             MaxIterations = maxIterations;
-            ExploredMap = new int[map.Width(), map.Height()];
+            ExploredMap = baseLine ? map : new int[map.Width(), map.Height()];
         }
         
         public string Run()

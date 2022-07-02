@@ -27,7 +27,7 @@ namespace Benchmarking.Core.Navigation.Reactive
             var force = NavExt.CalculatePotential(ExploredMap, _settings, Robot.Location, Goal) + CalculatePheromones();
             var nextStep = Robot.Location + force.GridPoint();
 
-            var pheromone = ExploredMap.CanStepTo(Robot.Location, nextStep) ? Robot.Location : nextStep;
+            var pheromone = Map.CanStepTo(Robot.Location, nextStep) ? Robot.Location : nextStep;
             if (_pheromones.Any(p => p.Location.Equals(pheromone)))
             {
                 _pheromones.First(p => p.Location.Equals(pheromone)).Strength += _pheromoneSettings.StrengthIncrease;
@@ -37,7 +37,7 @@ namespace Benchmarking.Core.Navigation.Reactive
                 _pheromones.Add(new Pheromone(pheromone, _pheromoneSettings.StrengthIncrease));
             }
 
-            RobotStep(ExploredMap.CanStepTo(Robot.Location, nextStep) ? nextStep : Robot.Location);
+            RobotStep(Map.CanStepTo(Robot.Location, nextStep) ? nextStep : Robot.Location);
         }
 
         private Vector CalculatePheromones()

@@ -27,9 +27,9 @@ namespace Benchmarking.Thesis.ChapterThree
             {
                 var items = line.Split(",");
 
-                Constant = double.Parse(items[10]);
-                StrengthIncrease = double.Parse(items[11]);
-                Range = int.Parse(items[11]);
+                Constant = double.Parse(items[11]);
+                StrengthIncrease = double.Parse(items[12]);
+                Range = int.Parse(items[13]);
             }
 
             public double Constant { get; }
@@ -41,7 +41,7 @@ namespace Benchmarking.Thesis.ChapterThree
         public void ExtensiveSearchAnalysis()
         {
             _output.WriteLine("Extensive Search Analysis");
-            var all = File.ReadAllLines(FileRef.ExtensiveSearchPheromone).Select(l => new PfData(l)).ToList();
+            var all = File.ReadAllLines(FileRef.FinalPheromone).Select(l => new PfData(l)).ToList();
             foreach (var g in all.GroupBy(g => g.MapName).OrderBy(g => g.Key))
             {
                 _output.WriteLine($"Success {g.Key} rate: {g.Count(r => r.Success)} / {g.Count()} ({g.Count(r => r.Success).Percentage(g.Count())}%)");

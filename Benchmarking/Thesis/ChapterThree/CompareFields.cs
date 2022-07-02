@@ -97,5 +97,33 @@ namespace Benchmarking.Thesis.ChapterThree
             if (mapName == "BugTrapThree") return 17;
             return -1;
         }
+
+        public static string ToGroupValue(string mapName)
+        {
+            if (mapName == "WallOne") return "Wall";
+            if (mapName == "WallTwo") return "Wall";
+            if (mapName == "WallThree") return "Wall";
+
+            if (mapName == "SlitOne") return "Slit";
+            if (mapName == "SlitTwo") return "Slit";
+            if (mapName == "SlitThree") return "Slit";
+
+            if (mapName == "RoomOne") return "Room";
+            if (mapName == "RoomTwo") return "Room";
+            if (mapName == "RoomThree") return "Room";
+
+            if (mapName == "PlankPileOne") return "PlankPile";
+            if (mapName == "PlankPileTwo") return "PlankPile";
+            if (mapName == "PlankPileThree") return "PlankPile";
+
+            if (mapName == "CorridorOne") return "Corridor";
+            if (mapName == "CorridorTwo") return "Corridor";
+            if (mapName == "CorridorThree") return "Corridor";
+
+            if (mapName == "BugTrapOne") return "BugTrap";
+            if (mapName == "BugTrapTwo") return "BugTrap";
+            if (mapName == "BugTrapThree") return "BugTrap";
+            return default;
+        }
     }
 }
