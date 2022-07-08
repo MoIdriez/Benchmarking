@@ -42,7 +42,7 @@ namespace Benchmarking.Core.Navigation.Tree
             }
         }
 
-        protected override string AdditionalMetrics()
+        public override string AdditionalMetrics()
         {
             return $",{NewPlanCount},{_settings}";
         }

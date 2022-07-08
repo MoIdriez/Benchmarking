@@ -20,7 +20,7 @@ namespace Benchmarking.Core.Navigation.Reactive
             RobotStep(Map.CanStepTo(Robot.Location, nextStep) ? nextStep : Robot.Location);
         }
 
-        protected override string AdditionalMetrics()
+        public override string AdditionalMetrics()
         {
             return $",{_settings}";
         }

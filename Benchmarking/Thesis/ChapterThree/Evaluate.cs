@@ -8,13 +8,13 @@ namespace Benchmarking.Thesis.ChapterThree
 {
     public class Evaluate
     {
-        private readonly List<EvaluateData> _data;
-        private readonly List<EvaluateData> _baselineData;
+        public List<EvaluateData> Data;
+        public List<EvaluateData> BaselineData;
 
         public Evaluate(List<EvaluateData> data)
         {
-            _data = data.Where(d => d.Approach != "BaseLine").ToList();
-            _baselineData = data.Where(d => d.Approach == "BaseLine").ToList();
+            Data = data.Where(d => d.Approach != ApproachType.BaseLine).ToList();
+            BaselineData = data.Where(d => d.Approach == ApproachType.BaseLine).ToList();
         }
         public class EvaluateData
         {
@@ -23,169 +23,88 @@ namespace Benchmarking.Thesis.ChapterThree
                 var items = line.Split(",");
 
                 Id = int.Parse(items[0]);
-                Approach = items[1];
-                Map = items[2];
+                Approach = (ApproachType)Enum.Parse(typeof(ApproachType), items[1]);
+                Map = (MapType)Enum.Parse(typeof(MapType), items[2]);
                 Success = bool.Parse(items[3]);
-                Time = long.Parse(items[4]);
+                Time = double.Parse(items[4]);
                 Steps = int.Parse(items[5]);
                 Visibility = double.Parse(items[6]);
                 PathSmoothness = double.Parse(items[7]);
             }
             public int Id { get; set; }
-            public string Approach { get; set; }
-            public string Map { get; set; }
+            public ApproachType Approach { get; set; }
+            public MapType Map { get; set; }
             public bool Success { get; set; }
-            public long Time { get; set; }
+            public double Time { get; set; }
             public int Steps { get; set; }
             public double Visibility { get; set; }
             public double PathSmoothness { get; set; }
         }
 
-        public void Compare(ITestOutputHelper output)
-        {
-            output.WriteLine("============= Success");
-            foreach (var mapType in CalculateSuccess())
-            {
-                output.WriteLine($"{mapType.mapName}: {mapType.value}");
-            }
-            output.WriteLine("============= Path");
-            foreach (var mapType in Path())
-            {
-                output.WriteLine($"{mapType.mapName}: {mapType.value}");
-            }
-            output.WriteLine("============= Duration");
-            foreach (var mapType in Duration())
-            {
-                output.WriteLine($"{mapType.mapName}: {mapType.value}");
-            }
-            output.WriteLine("============= Visibility");
-            foreach (var mapType in Visibility())
-            {
-                output.WriteLine($"{mapType.mapName}: {mapType.value}");
-            }
-            output.WriteLine("============= PathSmoothness");
-            foreach (var mapType in PathSmoothness())
-            {
-                output.WriteLine($"{mapType.mapName}: {mapType.value}");
-            }
-            output.WriteLine("=============");
+        public enum ApproachType {
+            BaseLine, PheromoneField, PotentialField, RRT, RRTExtended, AStar
+        }
+
+        public enum MapType {
+            WallOne, WallTwo, WallThree, SlitOne, SlitTwo, SlitThree, RoomOne, RoomTwo, RoomThree, PlankPileOne, PlankPileTwo, PlankPileThree, CorridorOne, CorridorTwo, CorridorThree, BugTrapOne, BugTrapTwo, BugTrapThree
         }
         
-        public List<(string mapName, double value)> CalculateSuccess()
+        public Dictionary<MapType, double> CalculateSuccess(ApproachType approach)
         {
-            return OrderedData().Select(g => (g.Key, g.Count(r => r.Success).Percentage(g.Count()))).ToList();
+            return OrderedData(approach).ToDictionary(g => g.Key, g => g.Count(r => r.Success).Percentage(g.Count()));
         }
 
-        public List<(string mapName, double value)> Path()
+        public Dictionary<MapType, double> Path(ApproachType approach)
         {
-            return OrderedData().Select(g => (g.Key, GetAverage(g, GetBaseLinedPath))).ToList();
+            return OrderedData(approach).ToDictionary(g => g.Key, g => GetAverage(g.ToList(), GetBaseLinedPath));
         }
 
-        public List<(string mapName, double value)> Duration()
+        public Dictionary<MapType, double> Duration(ApproachType approach)
         {
-            return OrderedData().Select(g => (g.Key, GetAverage(g, GetBaseLinedDuration))).ToList();
+            return OrderedData(approach).ToDictionary(g => g.Key, g => GetAverage(g.ToList(), GetBaseLinedDuration));
         }
 
         // 28.03 is max visibility
-        public List<(string mapName, double value)> Visibility()
+        public Dictionary<MapType, double> Visibility(ApproachType approach)
         {
-            return OrderedData().Select(g => (g.Key, g.Average(r => r.Visibility).Percentage(28.03))).ToList();
+            return OrderedData(approach).ToDictionary(g => g.Key, g => g.Average(r => r.Visibility).Percentage(28.03));
         }
 
-        public List<(string mapName, double value)> PathSmoothness()
+        public Dictionary<MapType, double> PathSmoothness(ApproachType approach)
         {
-            return OrderedData().Select(g => (g.Key, g.Where(a => !double.IsNaN(a.PathSmoothness)).Average(r => r.PathSmoothness))).ToList();
+            return OrderedData(approach).ToDictionary(g => g.Key, GetVisibility);
         }
 
-        private IOrderedEnumerable<IGrouping<string, EvaluateData>> OrderedData()
+        private IOrderedEnumerable<IGrouping<MapType, EvaluateData>> OrderedData(ApproachType approach)
         {
-            return _data.GroupBy(a => a.Map).OrderBy(a => CompareFields.ToOrderValue(a.Key));
+            var data = approach == ApproachType.BaseLine ? BaselineData : Data.Where(d => d.Approach == approach);
+            return data.GroupBy(a => a.Map).OrderBy(a => CompareFields.ToOrderValue(a.Key));
         }
         
-        private double GetAverage(IEnumerable<EvaluateData> data, Func<EvaluateData, int, double> func)
+        private double GetAverage(List<EvaluateData> data, Func<EvaluateData, double> func)
         {
-            return data.Select(func.Invoke).Sum() / data.Count();
+            return data.Select(func.Invoke).Sum() / data.Count;
         }
 
-        private double GetBaseLinedPath(EvaluateData data, int scale = 4)
+        private double GetBaseLinedPath(EvaluateData data)
         {
-            var baseLine = _baselineData.First(b => b.Id == data.Id);
-            return 100 - (data.Steps - baseLine.Steps).Percentage(baseLine.Steps * scale - baseLine.Steps);
+            var baseLine = BaselineData.First(b => b.Id == data.Id);
+            var baseLineMax = baseLine.Steps * 15;
+            return 100 - (Math.Min(baseLineMax, data.Steps) - baseLine.Steps).Percentage(baseLineMax);
         }
 
-        private double GetBaseLinedDuration(EvaluateData data, int scale = 10)
+        private double GetBaseLinedDuration(EvaluateData data)
         {
-            var baseLine = _baselineData.First(b => b.Id == data.Id);
-            return 100 - (data.Time - baseLine.Time).Percentage(baseLine.Time * scale - baseLine.Time);
+            var baseLine = BaselineData.First(b => b.Id == data.Id);
+            var baseLineMax = baseLine.Time * 10;
+            return 100 - (Math.Min(baseLineMax, data.Time) - baseLine.Time).Percentage(baseLineMax);
         }
 
-        public double Compare(Func<string, double> func, string mapName, double v, int scale = 3)
+        private double GetVisibility(IEnumerable<EvaluateData> data)
         {
-            var offset = func.Invoke(mapName);
-            var max = MaxV(scale, offset);
-            return 100 - (v - offset).Percentage(max);
+            var vsData = data.Where(d => !double.IsNaN(d.PathSmoothness));
+            var avg = vsData.Average(d => d.PathSmoothness);
+            return 100 - Math.Min(30, avg).Percentage(30);
         }
-
-        private static double MaxV(int scale, double offset)
-        {
-            return offset * scale - offset;
-        }
-
-        public double TimeOffset(string mapName)
-        {
-            if (mapName == "WallOne") return 92.33;
-            if (mapName == "WallTwo") return 89.59;
-            if (mapName == "WallThree") return 109.51;
-
-            if (mapName == "SlitOne") return 86.41;
-            if (mapName == "SlitTwo") return 90.21;
-            if (mapName == "SlitThree") return 87.34;
-
-            if (mapName == "RoomOne") return 64.12;
-            if (mapName == "RoomTwo") return 159.03;
-            if (mapName == "RoomThree") return 465.19;
-
-            if (mapName == "PlankPileOne") return 117.55;
-            if (mapName == "PlankPileTwo") return 309.01;
-            if (mapName == "PlankPileThree") return 1129.79;
-
-            if (mapName == "CorridorOne") return 109.43;
-            if (mapName == "CorridorTwo") return 111.03;
-            if (mapName == "CorridorThree") return 190.85;
-
-            if (mapName == "BugTrapOne") return 132.6;
-            if (mapName == "BugTrapTwo") return 137.69;
-            if (mapName == "BugTrapThree") return 150.9;
-            return -1;
-        }
-
-        public double PathOffSet(string mapName)
-        {
-            if (mapName == "WallOne") return 31.36;
-            if (mapName == "WallTwo") return 31.72;
-            if (mapName == "WallThree") return 40.98;
-
-            if (mapName == "SlitOne") return 30.01;
-            if (mapName == "SlitTwo") return 31.9;
-            if (mapName == "SlitThree") return 32.47;
-
-            if (mapName == "RoomOne") return 26.32;
-            if (mapName == "RoomTwo") return 53.43;
-            if (mapName == "RoomThree") return 113.89;
-
-            if (mapName == "PlankPileOne") return 45.38;
-            if (mapName == "PlankPileTwo") return 88.67;
-            if (mapName == "PlankPileThree") return 200.3;
-
-            if (mapName == "CorridorOne") return 47.17;
-            if (mapName == "CorridorTwo") return 48.83;
-            if (mapName == "CorridorThree") return 87.86;
-
-            if (mapName == "BugTrapOne") return 54.2;
-            if (mapName == "BugTrapTwo") return 57.38;
-            if (mapName == "BugTrapThree") return 63.74;
-            return -1;
-        }
-
     }
 }

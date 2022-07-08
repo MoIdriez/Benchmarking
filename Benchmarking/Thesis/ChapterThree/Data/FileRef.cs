@@ -12,5 +12,6 @@
         public static string BaseLine => "C:\\Users\\Research\\Source\\Repos\\MoIdriez\\Benchmarking\\Benchmarking\\Thesis\\ChapterThree\\Data\\BaseLine.txt";
         public static string FinalPheromone => "C:\\Users\\Research\\Source\\Repos\\MoIdriez\\Benchmarking\\Benchmarking\\Thesis\\ChapterThree\\Data\\FinalPheromone.txt";
         public static string FinalPotential => "C:\\Users\\Research\\Source\\Repos\\MoIdriez\\Benchmarking\\Benchmarking\\Thesis\\ChapterThree\\Data\\FinalPotential.txt";
+        public static string FinalAll => "C:\\Users\\Research\\Source\\Repos\\MoIdriez\\Benchmarking\\Benchmarking\\Thesis\\ChapterThree\\Data\\FinalAll.txt";
     }
 }

@@ -49,28 +49,28 @@ namespace Benchmarking.Thesis.ChapterThree
             CalculateSuccess(all);
             
             _output.WriteLine("===MOVEABLE===");
-            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, IsStuck = g.Count(r => r.IsStuck).Percentage(g.Count()) }))
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), a.Key))).Select(g => new { g.Key, IsStuck = g.Count(r => r.IsStuck).Percentage(g.Count()) }))
             {
                 _output.WriteLine($"{mapType.Key}: {Math.Max(0, 100 - mapType.IsStuck)}");
             }
             _output.WriteLine("===PATH===");
-            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, PathLength = g.Average(r => r.Steps) }))
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), a.Key))).Select(g => new { g.Key, PathLength = g.Average(r => r.Steps) }))
             {
                 _output.WriteLine($"{mapType.Key}: {Compare(PathOffSet, mapType.Key, mapType.PathLength)}");
             }
             _output.WriteLine("===DURATION===");
-            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, Duration = g.Average(r => r.Time) }))
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), a.Key))).Select(g => new { g.Key, Duration = g.Average(r => r.Time) }))
             {
                 _output.WriteLine($"{mapType.Key}: {Compare(TimeOffset, mapType.Key, mapType.Duration)}");
             }
             _output.WriteLine("===VISIBILITY===");
-            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, Visibility = (g.Average(r => r.AverageVisibility) - 5).Percentage(28.03) }))
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), a.Key))).Select(g => new { g.Key, Visibility = (g.Average(r => r.AverageVisibility) - 5).Percentage(28.03) }))
             {
                 _output.WriteLine($"{mapType.Key}: {mapType.Visibility}");
             }
 
             _output.WriteLine("===PathSmoothness===");
-            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key)).Select(g => new { g.Key, PathSmoothness = g.Average(r => r.PathSmoothness) }))
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), a.Key))).Select(g => new { g.Key, PathSmoothness = g.Average(r => r.PathSmoothness) }))
             {
                 _output.WriteLine($"{mapType.Key}: {mapType.PathSmoothness})");
             }
@@ -78,7 +78,7 @@ namespace Benchmarking.Thesis.ChapterThree
 
         private void CalculateSuccess(List<IData> all)
         {
-            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue(a.Key))
+            foreach (var mapType in all.GroupBy(a => a.MapName).OrderBy(a => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), a.Key)))
                          .Select(g => new {g.Key, Success = g.Count(r => r.Success).Percentage(g.Count())}))
             {
                 _output.WriteLine($"{mapType.Key}: {mapType.Success}");

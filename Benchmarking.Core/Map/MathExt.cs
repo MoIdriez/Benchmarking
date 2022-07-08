@@ -97,5 +97,44 @@ namespace Benchmarking.Core.Map
         {
             return Math.Max(min, Math.Min(i, max));
         }
+
+        public static double StandardDeviation(this IEnumerable<int> values)
+        {
+            var avg = values.Average();
+            return Math.Sqrt(values.Average(v => Math.Pow(v - avg, 2)));
+        }
+
+        public static double StandardDeviation(this IEnumerable<double> values)
+        {
+            var avg = values.Average();
+            return Math.Sqrt(values.Average(v => Math.Pow(v - avg, 2)));
+        }
+
+        public static double Percentile(this IEnumerable<int> sequence, double excelPercentile)
+        {
+            return sequence.Select(s => (double) s).ToArray().Percentile(excelPercentile);
+        }
+
+        public static double Percentile(this IEnumerable<double> seq, double excelPercentile)
+        {
+            var sequence = seq.ToArray();
+            return sequence.Percentile(excelPercentile);
+        }
+
+        public static double Percentile(this double[] sequence, double excelPercentile)
+        {
+            Array.Sort(sequence);
+            int N = sequence.Length;
+            double n = (N - 1) * excelPercentile + 1;
+            // Another method: double n = (N + 1) * excelPercentile;
+            if (n == 1d) return sequence[0];
+            else if (n == N) return sequence[N - 1];
+            else
+            {
+                int k = (int)n;
+                double d = n - k;
+                return sequence[k - 1] + d * (sequence[k] - sequence[k - 1]);
+            }
+        }
     }
 }

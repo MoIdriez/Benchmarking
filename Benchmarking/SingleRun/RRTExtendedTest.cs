@@ -26,7 +26,7 @@ namespace Benchmarking.SingleRun
         {
             var (map, robot, goal) = DefaultMaps.GetFiveBlockMap(new Random());
 
-            var settings = new RRTExtendedSettings(30, 30, 30);
+            var settings = new RRTSettings(30, 30);
             var method = new RRTExtended(map, robot, goal, 1000, settings);
             var result = method.Run();
             _testOutputHelper.WriteLine(result);

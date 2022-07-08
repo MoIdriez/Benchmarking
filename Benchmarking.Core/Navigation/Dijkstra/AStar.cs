@@ -34,7 +34,7 @@ namespace Benchmarking.Core.Navigation.Dijkstra
             }
         }
 
-        protected override string AdditionalMetrics()
+        public override string AdditionalMetrics()
         {
             return $",{NewPlanCount}";
         }

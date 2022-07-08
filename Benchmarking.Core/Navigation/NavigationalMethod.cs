@@ -67,7 +67,7 @@ namespace Benchmarking.Core.Navigation
         private List<Point>? _stepsTillGoal;
 
         protected abstract void Loop();
-        protected abstract string AdditionalMetrics();
+        public abstract string AdditionalMetrics();
 
         public string Result()
         {

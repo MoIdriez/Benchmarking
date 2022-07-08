@@ -59,7 +59,7 @@ namespace Benchmarking.Thesis.ChapterThree
             _output.WriteLine("Extensive Search 2 Analysis");
             var all = File.ReadAllLines(FileRef.ExtensiveSearch2).Select(l => new Data(l)).ToList();
 
-            foreach (var g in all.GroupBy(g => g.MapName).OrderBy(g => CompareFields.ToOrderValue(g.Key)))
+            foreach (var g in all.GroupBy(g => g.MapName).OrderBy(g => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), g.Key))))
             {
                 _output.WriteLine($"Success {g.Key} rate: {g.Count(r => r.Success)} / {g.Count()} ({g.Count(r => r.Success).Percentage(g.Count())}%)");
             }
@@ -73,6 +73,166 @@ namespace Benchmarking.Thesis.ChapterThree
             foreach (var g in enumerable)
             {
                 _output.WriteLine($"{g.Key.ObstacleRange},{g.Key.ObstacleConstant},{g.Key.AttractiveConstant}: Success = {g.Success}, Steps = {Math.Round(g.Distance, 2)}, DistanceToGoal = {Math.Round(g.DG, 2)}, Smoothness = {Math.Round(g.Smoothness, 2)}");
+            }
+        }
+
+        [Fact]
+        public void FinalAnalysis()
+        {
+            var all = File.ReadAllLines(FileRef.FinalPotential).Select(l => new Data(l)).ToList();
+            
+            _output.WriteLine($"Final Analysis: Average: {all.Count(d => d.Success).Percentage(all.Count)}");
+            _output.WriteLine("----------------------------------------------------------");
+            var success = all.Where(a => a.Success).ToList();
+            _output.WriteLine($"Average Step: {all.Average(s => s.Steps):F} | Average success Step: {success.Average(s => s.Steps):F}");
+            _output.WriteLine($"StdDev: {success.Select(s => s.Steps).StandardDeviation():F} | Min: {success.Select(s => s.Steps).Min():F} | 25: {success.Select(s => s.Steps).Percentile(0.25):F} | 75: {success.Select(s => s.Steps).Percentile(0.75):F} | Max: {success.Select(s => s.Steps).Max():F}");
+            _output.WriteLine($"ALL StdDev: {all.Select(s => s.Steps).StandardDeviation():F} | Min: {all.Select(s => s.Steps).Min():F} | 25: {all.Select(s => s.Steps).Percentile(0.25):F} | 75: {all.Select(s => s.Steps).Percentile(0.75):F} | Max: {all.Select(s => s.Steps).Max():F}");
+            _output.WriteLine("----------------------------------------------------------");
+            _output.WriteLine($"Average Visibility: {all.Average(s => s.AverageVisibility):F} | Average success Visibility: {success.Average(s => s.AverageVisibility):F}");
+            _output.WriteLine($"StdDev: {success.Select(s => s.AverageVisibility).StandardDeviation():F} | Min: {success.Select(s => s.AverageVisibility).Min():F} | 25: {success.Select(s => s.AverageVisibility).Percentile(0.25):F} | 75: {success.Select(s => s.AverageVisibility).Percentile(0.75):F} | Max: {success.Select(s => s.AverageVisibility).Max():F}");
+            _output.WriteLine($"ALL StdDev: {all.Select(s => s.AverageVisibility).StandardDeviation():F} | Min: {all.Select(s => s.AverageVisibility).Min():F} | 25: {all.Select(s => s.AverageVisibility).Percentile(0.25):F} | 75: {all.Select(s => s.AverageVisibility).Percentile(0.75):F} | Max: {all.Select(s => s.AverageVisibility).Max():F}");
+            _output.WriteLine("----------------------------------------------------------");
+            _output.WriteLine($"Average Path Smoothness: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Average(s => s.PathSmoothness):F} | Average success Path Smoothness: {success.Average(s => s.PathSmoothness):F}");
+            _output.WriteLine($"StdDev: {success.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).StandardDeviation():F} | Min: {success.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Min():F} | 25: {success.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Percentile(0.25):F} | 75: {success.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Percentile(0.75):F} | Max: {success.Select(s => s.PathSmoothness).Max():F}");
+            _output.WriteLine($"ALL StdDev: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).StandardDeviation():F} | Min: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Min():F} | 25: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Percentile(0.25):F} | 75: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Percentile(0.75):F} | Max: {all.Select(s => s.PathSmoothness).Max():F}");
+            _output.WriteLine("==========================================================");
+
+            var mapGroups = all
+                //.Where(g => !g.MapName.Contains("One"))
+                .GroupBy(g => g.MapName)
+                .OrderBy(g => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), g.Key))).ToList();
+            var mapSuccess = mapGroups.Select(g => new { Map = g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()), All = g }).ToList();
+
+            _output.WriteLine("BY MAP TYPE");
+
+            _output.WriteLine("----------------------------------------------------------");
+            _output.WriteLine($"Standard deviation: {mapSuccess.Select(m => m.Success).StandardDeviation():F}");
+            _output.WriteLine($"Max: {mapSuccess.Select(m => m.Success).Max():F}");
+            _output.WriteLine($"Min: {mapSuccess.Select(m => m.Success).Min():F}");
+            _output.WriteLine($"25%: {mapSuccess.Select(m => m.Success).ToArray().Percentile(0.25):F}");
+            _output.WriteLine($"75%: {mapSuccess.Select(m => m.Success).ToArray().Percentile(0.75):F}");
+            _output.WriteLine("----------------------------------------------------------");
+            foreach (var g in mapSuccess)
+            {
+                _output.WriteLine($"{g.Map}: \t{g.Success:F}%");
+                var top5 = g.All.GroupBy(g => new {g.ObstacleRange, g.ObstacleConstant, g.AttractiveConstant})
+                    .Select(g => new {g.Key, Success = g.Count(r => r.Success).Percentage(g.Count())})
+                    .OrderByDescending(g => g.Success).ToList();
+
+                //_output.WriteLine($"Top: {string.Join(" || ", top5.Select(t => $"{t.Key.ObstacleRange},{t.Key.ObstacleConstant},{t.Key.AttractiveConstant}: {t.Success:F}%"))}");
+
+            }
+            
+            _output.WriteLine("==========================================================");
+            _output.WriteLine("BY PARAMETERS");
+            var paramGroups = all
+                    //.Where(g => !g.MapName.Contains("One"))
+                    .GroupBy(g => new { g.ObstacleRange, g.ObstacleConstant, g.AttractiveConstant })
+                    .Select(g => new { g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()), All = g})
+                    .OrderByDescending(g => g.Success).ToList();
+
+            _output.WriteLine("----------------------------------------------------------");
+            _output.WriteLine($"Standard deviation: {paramGroups.Select(m => m.Success).StandardDeviation():F}");
+            _output.WriteLine($"Max: {paramGroups.Select(m => m.Success).Max():F}");
+            _output.WriteLine($"Min: {paramGroups.Select(m => m.Success).Min():F}");
+            _output.WriteLine($"25%: {paramGroups.Select(m => m.Success).ToArray().Percentile(0.25):F}");
+            _output.WriteLine($"75%: {paramGroups.Select(m => m.Success).ToArray().Percentile(0.75):F}");
+            _output.WriteLine("----------------------------------------------------------");
+
+            _output.WriteLine($"==========================================================");
+            _output.WriteLine($"Max: {success.Max(s => s.Steps)}, Min:{success.Min(s => s.Steps)}");
+            
+            foreach (var g in paramGroups.Take(15))
+            {
+                _output.WriteLine($"{g.Key.ObstacleRange},{g.Key.ObstacleConstant},{g.Key.AttractiveConstant}: \t{g.Success:F}%");
+
+                var maps = g.All
+                    //.Where(g => !g.MapName.Contains("One"))
+                    .GroupBy(g => g.MapName)
+                    .Select(s => new { Map = s.Key, Success = s.Count(r => r.Success).Percentage(s.Count())})
+                    .OrderByDescending(g => g.Success).Take(7).ToList();
+
+                _output.WriteLine($"Top: {string.Join(" || ", maps.Select(t => $"{t.Map}: {t.Success:F}%"))}");
+            }
+        }
+
+        [Fact]
+        public void FinalPheromoneAnalysis()
+        {
+            var all = File.ReadAllLines(FileRef.FinalPheromone).Select(l => new PheromonePotentialFieldAnalysis.PfData(l)).ToList();
+            
+            _output.WriteLine($"Final Analysis: Average: {all.Count(d => d.Success).Percentage(all.Count)}");
+            _output.WriteLine("----------------------------------------------------------");
+            var success = all.Where(a => a.Success).ToList();
+            _output.WriteLine($"Average Step: {all.Average(s => s.Steps):F} | Average success Step: {success.Average(s => s.Steps):F}");
+            _output.WriteLine($"StdDev: {success.Select(s => s.Steps).StandardDeviation():F} | Min: {success.Select(s => s.Steps).Min():F} | 25: {success.Select(s => s.Steps).Percentile(0.25):F} | 75: {success.Select(s => s.Steps).Percentile(0.75):F} | Max: {success.Select(s => s.Steps).Max():F}");
+            _output.WriteLine($"ALL StdDev: {all.Select(s => s.Steps).StandardDeviation():F} | Min: {all.Select(s => s.Steps).Min():F} | 25: {all.Select(s => s.Steps).Percentile(0.25):F} | 75: {all.Select(s => s.Steps).Percentile(0.75):F} | Max: {all.Select(s => s.Steps).Max():F}");
+            _output.WriteLine("----------------------------------------------------------");
+            _output.WriteLine($"Average Visibility: {all.Average(s => s.AverageVisibility):F} | Average success Visibility: {success.Average(s => s.AverageVisibility):F}");
+            _output.WriteLine($"StdDev: {success.Select(s => s.AverageVisibility).StandardDeviation():F} | Min: {success.Select(s => s.AverageVisibility).Min():F} | 25: {success.Select(s => s.AverageVisibility).Percentile(0.25):F} | 75: {success.Select(s => s.AverageVisibility).Percentile(0.75):F} | Max: {success.Select(s => s.AverageVisibility).Max():F}");
+            _output.WriteLine($"ALL StdDev: {all.Select(s => s.AverageVisibility).StandardDeviation():F} | Min: {all.Select(s => s.AverageVisibility).Min():F} | 25: {all.Select(s => s.AverageVisibility).Percentile(0.25):F} | 75: {all.Select(s => s.AverageVisibility).Percentile(0.75):F} | Max: {all.Select(s => s.AverageVisibility).Max():F}");
+            _output.WriteLine("----------------------------------------------------------");
+            _output.WriteLine($"Average Path Smoothness: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Average(s => s.PathSmoothness):F} | Average success Path Smoothness: {success.Average(s => s.PathSmoothness):F}");
+            _output.WriteLine($"StdDev: {success.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).StandardDeviation():F} | Min: {success.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Min():F} | 25: {success.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Percentile(0.25):F} | 75: {success.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Percentile(0.75):F} | Max: {success.Select(s => s.PathSmoothness).Max():F}");
+            _output.WriteLine($"ALL StdDev: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).StandardDeviation():F} | Min: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Min():F} | 25: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Percentile(0.25):F} | 75: {all.Where(a => !double.IsNaN(a.PathSmoothness)).Select(s => s.PathSmoothness).Percentile(0.75):F} | Max: {all.Select(s => s.PathSmoothness).Max():F}");
+            _output.WriteLine("==========================================================");
+
+            var mapGroups = all
+                //.Where(g => !g.MapName.Contains("One"))
+                .GroupBy(g => g.MapName)
+                .OrderBy(g => CompareFields.ToOrderValue((Evaluate.MapType)Enum.Parse(typeof(Evaluate.MapType), g.Key))).ToList();
+            var mapSuccess = mapGroups.Select(g => new { Map = g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()), All = g }).ToList();
+
+            _output.WriteLine("BY MAP TYPE");
+
+            _output.WriteLine("----------------------------------------------------------");
+            _output.WriteLine($"Standard deviation: {mapSuccess.Select(m => m.Success).StandardDeviation():F}");
+            _output.WriteLine($"Max: {mapSuccess.Select(m => m.Success).Max():F}");
+            _output.WriteLine($"Min: {mapSuccess.Select(m => m.Success).Min():F}");
+            _output.WriteLine($"25%: {mapSuccess.Select(m => m.Success).ToArray().Percentile(0.25):F}");
+            _output.WriteLine($"75%: {mapSuccess.Select(m => m.Success).ToArray().Percentile(0.75):F}");
+            _output.WriteLine("----------------------------------------------------------");
+            foreach (var g in mapSuccess)
+            {
+                _output.WriteLine($"{g.Map}: \t{g.Success:F}%");
+                var top5 = g.All.GroupBy(g => new {g.ObstacleRange, g.ObstacleConstant, g.AttractiveConstant})
+                    .Select(g => new {g.Key, Success = g.Count(r => r.Success).Percentage(g.Count())})
+                    .OrderByDescending(g => g.Success).ToList();
+
+                //_output.WriteLine($"Top: {string.Join(" || ", top5.Select(t => $"{t.Key.ObstacleRange},{t.Key.ObstacleConstant},{t.Key.AttractiveConstant}: {t.Success:F}%"))}");
+
+            }
+            
+            _output.WriteLine("==========================================================");
+            _output.WriteLine("BY PARAMETERS");
+            var paramGroups = all
+                    //.Where(g => !g.MapName.Contains("One"))
+                    .GroupBy(g => new { g.Constant, g.StrengthIncrease, g.Range })
+                    .Select(g => new { g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()), All = g})
+                    .OrderByDescending(g => g.Success).ToList();
+
+            _output.WriteLine("----------------------------------------------------------");
+            _output.WriteLine($"Standard deviation: {paramGroups.Select(m => m.Success).StandardDeviation():F}");
+            _output.WriteLine($"Max: {paramGroups.Select(m => m.Success).Max():F}");
+            _output.WriteLine($"Min: {paramGroups.Select(m => m.Success).Min():F}");
+            _output.WriteLine($"25%: {paramGroups.Select(m => m.Success).ToArray().Percentile(0.25):F}");
+            _output.WriteLine($"75%: {paramGroups.Select(m => m.Success).ToArray().Percentile(0.75):F}");
+            _output.WriteLine("----------------------------------------------------------");
+
+            _output.WriteLine($"==========================================================");
+            _output.WriteLine($"Max: {success.Max(s => s.Steps)}, Min:{success.Min(s => s.Steps)}");
+            
+            foreach (var g in paramGroups.Take(15))
+            {
+                _output.WriteLine($"{g.Key.Constant},{g.Key.StrengthIncrease},{g.Key.Range}: \t{g.Success:F}%");
+
+                var maps = g.All
+                    //.Where(g => !g.MapName.Contains("One"))
+                    .GroupBy(g => g.MapName)
+                    .Select(s => new { Map = s.Key, Success = s.Count(r => r.Success).Percentage(s.Count())})
+                    .OrderByDescending(g => g.Success).Take(7).ToList();
+
+                _output.WriteLine($"Top: {string.Join(" || ", maps.Select(t => $"{t.Map}: {t.Success:F}%"))}");
             }
         }
 

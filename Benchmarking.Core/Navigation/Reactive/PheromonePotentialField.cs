@@ -53,7 +53,7 @@ namespace Benchmarking.Core.Navigation.Reactive
             return pheromoneRepulsive;
         }
 
-        protected override string AdditionalMetrics()
+        public override string AdditionalMetrics()
         {
             return $",{_settings},{_pheromoneSettings}";
         }
