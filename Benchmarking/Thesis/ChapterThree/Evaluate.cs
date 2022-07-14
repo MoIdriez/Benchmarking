@@ -48,10 +48,20 @@ namespace Benchmarking.Thesis.ChapterThree
         public enum MapType {
             WallOne, WallTwo, WallThree, SlitOne, SlitTwo, SlitThree, RoomOne, RoomTwo, RoomThree, PlankPileOne, PlankPileTwo, PlankPileThree, CorridorOne, CorridorTwo, CorridorThree, BugTrapOne, BugTrapTwo, BugTrapThree
         }
+
+        public double GetScore(ApproachType approach)
+        {
+            var success = CalculateSuccess(approach).Average(a => a.Value);
+            var path = Path(approach).Any() ? Path(approach).Average(a => a.Value) : 0;
+            var duration = Duration(approach).Any() ? Duration(approach).Average(a => a.Value) : 0;
+            var visibility = Visibility(approach).Any() ? Visibility(approach).Average(a => a.Value) : 0;
+            var pathSmoothness = PathSmoothness(approach).Any() ? PathSmoothness(approach).Average(a => a.Value): 0;
+            return (success + path + duration + visibility + pathSmoothness) / 5.0;
+        }
         
         public Dictionary<MapType, double> CalculateSuccess(ApproachType approach)
         {
-            return OrderedData(approach).ToDictionary(g => g.Key, g => g.Count(r => r.Success).Percentage(g.Count()));
+            return OrderedData(approach, false).ToDictionary(g => g.Key, g => g.Count(r => r.Success).Percentage(g.Count()));
         }
 
         public Dictionary<MapType, double> Path(ApproachType approach)
@@ -72,12 +82,14 @@ namespace Benchmarking.Thesis.ChapterThree
 
         public Dictionary<MapType, double> PathSmoothness(ApproachType approach)
         {
-            return OrderedData(approach).ToDictionary(g => g.Key, GetVisibility);
+            return OrderedData(approach).ToDictionary(g => g.Key, GetPathSmoothness);
         }
 
-        private IOrderedEnumerable<IGrouping<MapType, EvaluateData>> OrderedData(ApproachType approach)
+        private IOrderedEnumerable<IGrouping<MapType, EvaluateData>> OrderedData(ApproachType approach, bool successOnly = true)
         {
             var data = approach == ApproachType.BaseLine ? BaselineData : Data.Where(d => d.Approach == approach);
+            if (successOnly)
+                data = data.Where(d => d.Success);
             return data.GroupBy(a => a.Map).OrderBy(a => CompareFields.ToOrderValue(a.Key));
         }
         
@@ -100,7 +112,7 @@ namespace Benchmarking.Thesis.ChapterThree
             return 100 - (Math.Min(baseLineMax, data.Time) - baseLine.Time).Percentage(baseLineMax);
         }
 
-        private double GetVisibility(IEnumerable<EvaluateData> data)
+        private double GetPathSmoothness(IEnumerable<EvaluateData> data)
         {
             var vsData = data.Where(d => !double.IsNaN(d.PathSmoothness));
             var avg = vsData.Average(d => d.PathSmoothness);

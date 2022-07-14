@@ -77,6 +77,34 @@ namespace Benchmarking.Thesis.ChapterFour
         }
 
         [Fact]
+        public async Task ApproachMapping()
+        {
+            var data = await GetSearchData();
+            
+            _output.WriteLine("Evaluating maps on their best approaches");
+            _output.WriteLine("----------------------------------------------------------");
+            foreach (Evaluate.MapType mapType in Enum.GetValues(typeof(Evaluate.MapType)))
+            {
+                _output.WriteLine("==========================================================");
+                _output.WriteLine($"Map: {mapType}");
+                _output.WriteLine("----------------------------------------------------------");
+                var all = data.Where(m => m.Map == mapType).ToList();
+                var eval = new Evaluate(all);
+                var scores = (from Evaluate.ApproachType approach in Enum.GetValues(typeof(Evaluate.ApproachType)) select (approach, value: eval.GetScore(approach))).ToList();
+                foreach (var score in scores.OrderByDescending(s => s.value))
+                {
+                    _output.WriteLine($"{score.approach}: {score.value:F}" +
+                                      $" | {(eval.CalculateSuccess(score.approach).Average(a => a.Value))}" +
+                                      $" | {(eval.Path(score.approach).Any() ? eval.Path(score.approach).Average(a => a.Value) : 0)}" +
+                                      $" | {(eval.Duration(score.approach).Any() ? eval.Duration(score.approach).Average(a => a.Value) : 0)}" +
+                                      $" | {(eval.Visibility(score.approach).Any() ? eval.Visibility(score.approach).Average(a => a.Value) : 0)}" +
+                                      $" | {(eval.PathSmoothness(score.approach).Any() ? eval.PathSmoothness(score.approach).Average(a => a.Value) : 0)}");
+                }
+
+            }
+        }
+
+        [Fact]
         public async Task EvaluateSearch()
         {
             var data = await GetSearchData();
