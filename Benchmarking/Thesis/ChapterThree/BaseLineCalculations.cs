@@ -30,7 +30,7 @@ namespace Benchmarking.Thesis.ChapterThree
 
             for (var i = 0; i < 100; i++)
             {
-                var maps = ThesisMaps.GetMaps();
+                var maps = ThesisMaps.GetStaticMaps();
                 tasks.AddRange(maps.Select(map => RunMethod(sn, map.map, map.robot, map.goal, map.mapName)));
             }
             sn.Run(tasks.Count);

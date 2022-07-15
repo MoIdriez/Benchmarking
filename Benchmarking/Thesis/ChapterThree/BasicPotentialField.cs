@@ -123,7 +123,7 @@ namespace Benchmarking.Thesis.ChapterThree
             for (var i = 0; i < 20; i++)
             {
                 var settings = new PotentialFieldSettings(or, oc, ac);
-                var maps = ThesisMaps.GetMaps();
+                var maps = ThesisMaps.GetStaticMaps();
                 tasks.AddRange(maps.Select(map => RunMethod(sn, map.map, map.robot, map.goal, map.mapName, settings)));
             }
             sn.Run(tasks.Count, 1000);
@@ -144,7 +144,7 @@ namespace Benchmarking.Thesis.ChapterThree
             {
                 var settings = new PotentialFieldSettings(3, 4, 9);
                 var pheromoneSettings = new PheromoneSettings(c, si, r);
-                var maps = ThesisMaps.GetMaps();
+                var maps = ThesisMaps.GetStaticMaps();
                 tasks.AddRange(maps.Select(map => RunPheromoneMethod(sn, map.map, map.robot, map.goal, map.mapName, settings, pheromoneSettings)));
             }
             sn.Run(tasks.Count, 1000);

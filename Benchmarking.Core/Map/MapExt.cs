@@ -237,5 +237,10 @@ namespace Benchmarking.Core.Map
 
             return points;
         }
+
+        public static double Occupation(this int[,] map)
+        {
+            return map.Cast<int>().Count(i => DefaultValue == i).Percentage(map.Length);
+        }
     }
 }

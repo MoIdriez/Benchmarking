@@ -100,7 +100,7 @@ namespace Benchmarking.Thesis.ChapterFour
 
                     for (var i = 0; i < 10; i++)
                     {
-                        var maps = ThesisMaps.GetMaps(r);
+                        var maps = ThesisMaps.GetStaticMaps(r);
                         foreach (var map in maps)
                         {
                             tasks.Add(Run("RRT", new RRT(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, settings), i, map));

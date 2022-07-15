@@ -38,7 +38,7 @@ namespace Benchmarking.Thesis.ChapterThree
 
             for (var i = 0; i < 1000; i++)
             {
-                var maps = ThesisMaps.GetMaps(r);
+                var maps = ThesisMaps.GetStaticMaps(r);
                 foreach (var map in maps)
                 {
                     tasks.Add(Run("BaseLine", new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, baseLine: true), i, map));

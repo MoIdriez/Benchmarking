@@ -193,7 +193,7 @@ namespace Benchmarking.Core.Map
             {
                 i++;
                 if (i > 360000)
-                    throw new Exception("Can't find any empty space");
+                    return new Point(0, 0);
 
                 int x;
                 int y;

@@ -30,6 +30,53 @@ namespace Benchmarking.Thesis.ChapterFour
         }
 
         [Fact]
+        public async Task AllGeneratedRuns()
+        {
+            var tasks = new List<Task>();
+            var sn = new StateNotifier(_output, $"AllGeneratedSearch-{Guid.NewGuid()}.txt");
+
+            var r = new Random();
+
+            var potentialFieldSettings = new PotentialFieldSettings(3, 4, 9);
+            var pheromoneSettings = new PheromoneSettings(1, 5, 8);
+            var rrtSettings = new RRTSettings(12, 16);
+            var rrtExtendedSettings = new RRTSettings(14, 14);
+
+            for (var i = 0; i < 10; i++)
+            {
+                var maps = ThesisMaps.GetGeneratedMaps(r);
+                foreach (var map in maps)
+                {
+                    tasks.Add(Run(Evaluate.ApproachType.BaseLine, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, baseLine: true), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.AStar, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.PotentialField, new PotentialField(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, potentialFieldSettings), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.PheromoneField, new PheromonePotentialField(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, potentialFieldSettings, pheromoneSettings), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.RRT, new RRT(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtSettings), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.RRTExtended, new RRTExtended(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtExtendedSettings), i, map));
+                }
+            }
+
+            sn.Run(tasks.Count, 1);
+            await Task.WhenAll(tasks);
+            sn.Result();
+
+            async Task Run(Evaluate.ApproachType approach, NavigationalMethod method, int i, (string mapName, int[,] map, Robot robot, Point goal) map)
+            {
+                try
+                {
+                    await Task.Run(method.Run);
+                    sn.NotifyCompletion(
+                        $"{i},{approach},{map.mapName},{method.HasSeenGoal},{method.Time:F},{method.Robot.Steps.Count},{method.AverageVisibility:F},{method.PathSmoothness:F}");
+                }
+                catch (Exception ex)
+                {
+                    _output.WriteLine($"Exception: {i}|{approach}: {ex.Message} - {ex.StackTrace}");
+                }
+                
+            }
+        }
+
+        [Fact]
         public async Task AllRun()
         {
             var tasks = new List<Task>();
@@ -44,7 +91,7 @@ namespace Benchmarking.Thesis.ChapterFour
 
             for (var i = 0; i < 500; i++)
             {
-                var maps = ThesisMaps.GetMaps(r);
+                var maps = ThesisMaps.GetStaticMaps(r);
                 foreach (var map in maps)
                 {
                     tasks.Add(Run(Evaluate.ApproachType.BaseLine, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, baseLine: true), i, map));
