@@ -61,13 +61,13 @@ namespace Benchmarking.Core.Navigation.Tree
 
             while (currentNode.Location.DistanceTo(Goal) > _settings.GoalDistance || ExploredMap.IsObstructed(currentNode.Location, Goal))
             {
+                if (TimeExpired)
+                    return new List<Point> { Robot.Location };
+
                 var (randomLocation, node) = ExploredMap.GetRandomLocation(nodes, _settings.GrowthSize, R);
 
                 currentNode = new Node(randomLocation, node);
                 nodes.Add(currentNode);
-
-                if (!(currentNode.Location.DistanceTo(Goal) < _settings.GoalDistance) || ExploredMap.IsObstructed(currentNode.Location, Goal)) continue;
-                break;
             }
 
             var goalNode = new Node(Goal, currentNode);

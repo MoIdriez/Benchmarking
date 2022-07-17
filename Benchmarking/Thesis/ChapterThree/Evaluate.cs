@@ -8,6 +8,10 @@ namespace Benchmarking.Thesis.ChapterThree
 {
     public class Evaluate
     {
+        private double _pathMultiplier = 22.12;
+        private double _timeMultiplier = 128.41;
+        private double _smoothnessMax = 28.03;
+
         public List<EvaluateData> Data;
         public List<EvaluateData> BaselineData;
 
@@ -46,17 +50,38 @@ namespace Benchmarking.Thesis.ChapterThree
         }
 
         public enum MapType {
-            WallOne, WallTwo, WallThree, SlitOne, SlitTwo, SlitThree, RoomOne, RoomTwo, RoomThree, PlankPileOne, PlankPileTwo, PlankPileThree, CorridorOne, CorridorTwo, CorridorThree, BugTrapOne, BugTrapTwo, BugTrapThree
+            WallOne, WallTwo, WallThree, SlitOne, SlitTwo, SlitThree, RoomOne, RoomTwo, RoomThree, PlankPileOne, PlankPileTwo, PlankPileThree, CorridorOne, CorridorTwo, CorridorThree, BugTrapOne, BugTrapTwo, BugTrapThree,
+            ObstacleOne, ObstacleTwo, ObstacleThree, ObstacleFour, ObstacleFive, 
+            //ObstacleSix, ObstacleSeven, ObstacleEight, ObstacleNine, ObstacleTen,
+            TunnelOne, TunnelTwo, TunnelThree, TunnelFour, TunnelFive, 
+            //TunnelSix, TunnelSeven, TunnelEight, TunnelNine, TunnelTen
         }
 
         public double GetScore(ApproachType approach)
         {
-            var success = CalculateSuccess(approach).Average(a => a.Value);
+            var success = CalculateSuccess(approach).Any() ? CalculateSuccess(approach).Average(a => a.Value) : 0;
             var path = Path(approach).Any() ? Path(approach).Average(a => a.Value) : 0;
             var duration = Duration(approach).Any() ? Duration(approach).Average(a => a.Value) : 0;
             var visibility = Visibility(approach).Any() ? Visibility(approach).Average(a => a.Value) : 0;
             var pathSmoothness = PathSmoothness(approach).Any() ? PathSmoothness(approach).Average(a => a.Value): 0;
             return (success + path + duration + visibility + pathSmoothness) / 5.0;
+        }
+
+        public double Score(ApproachType approach, double pw, double dw, double psw)
+        {
+            var success = CalculateSuccess(approach).Any() ? CalculateSuccess(approach).Average(a => a.Value) : 0;
+            var path = Path(approach).Any() ? Path(approach).Average(a => a.Value) : 0;
+            var duration = Duration(approach).Any() ? Duration(approach).Average(a => a.Value) : 0;
+            var visibility = Visibility(approach).Any() ? Visibility(approach).Average(a => a.Value) : 0;
+            var pathSmoothness = PathSmoothness(approach).Any() ? PathSmoothness(approach).Average(a => a.Value): 0;
+
+            //success /= 100;
+            //path /= 100;
+            //duration /= 100;
+            //visibility /= 100;
+            //pathSmoothness /= 100;
+
+            return success * ((pw * path + (1.0 - pw) * visibility + (dw * duration + psw * pathSmoothness)) / 2.0);
         }
         
         public Dictionary<MapType, double> CalculateSuccess(ApproachType approach)
@@ -77,7 +102,7 @@ namespace Benchmarking.Thesis.ChapterThree
         // 28.03 is max visibility
         public Dictionary<MapType, double> Visibility(ApproachType approach)
         {
-            return OrderedData(approach).ToDictionary(g => g.Key, g => g.Average(r => r.Visibility).Percentage(28.03));
+            return OrderedData(approach).ToDictionary(g => g.Key, g => g.Average(r => r.Visibility).PercentageFromRange(2, 28.03));
         }
 
         public Dictionary<MapType, double> PathSmoothness(ApproachType approach)
@@ -100,23 +125,55 @@ namespace Benchmarking.Thesis.ChapterThree
 
         private double GetBaseLinedPath(EvaluateData data)
         {
-            var baseLine = BaselineData.First(b => b.Id == data.Id);
-            var baseLineMax = baseLine.Steps * 15;
-            return 100 - (Math.Min(baseLineMax, data.Steps) - baseLine.Steps).Percentage(baseLineMax);
+            var baseLine = BaselineData.First(b => b.Id == data.Id && IsSameMapGroups(b, data));
+            var baseLinedPath = Normalize(baseLine.Steps, data.Steps, _pathMultiplier);
+            if (baseLinedPath > 100)
+                baseLinedPath = baseLinedPath;
+            return baseLinedPath;
         }
 
         private double GetBaseLinedDuration(EvaluateData data)
         {
-            var baseLine = BaselineData.First(b => b.Id == data.Id);
-            var baseLineMax = baseLine.Time * 10;
-            return 100 - (Math.Min(baseLineMax, data.Time) - baseLine.Time).Percentage(baseLineMax);
+            var baseLine = BaselineData.First(b => b.Id == data.Id && IsSameMapGroups(b, data));
+            var baseLinedDuration = Normalize(baseLine.Time, data.Time, _timeMultiplier);
+            if (baseLinedDuration > 100)
+                baseLinedDuration = baseLinedDuration;
+            return baseLinedDuration;
         }
 
         private double GetPathSmoothness(IEnumerable<EvaluateData> data)
         {
             var vsData = data.Where(d => !double.IsNaN(d.PathSmoothness));
             var avg = vsData.Average(d => d.PathSmoothness);
-            return 100 - Math.Min(30, avg).Percentage(30);
+            var pathSmoothness = 1 - avg.PercentageFromRange(0, 28);
+            //Normalize(0, avg, 1);
+            //Math.Min(30, avg).Percentage(30);
+            //if (pathSmoothness > 100)
+            //    pathSmoothness = pathSmoothness;
+            return pathSmoothness;
+        }
+
+        private double Normalize(double baseLine, double v, double maxMultiplier)
+        {
+            var max = baseLine * maxMultiplier;
+            var min = baseLine - (max - baseLine) / 9;
+            return v.PercentageFromRange(max, min);
+        }
+
+        private static bool IsSameMapGroups(EvaluateData b, EvaluateData d)
+        {
+            return b.Map == d.Map;
+            //return IsStaticMap(b.Map) == IsStaticMap(d.Map);
+        }
+
+        public static bool IsStaticMap(MapType map)
+        {
+            return new MapType[]
+            {
+                MapType.WallOne, MapType.WallTwo, MapType.WallThree, MapType.SlitOne, MapType.SlitTwo, MapType.SlitThree, MapType.RoomOne, MapType.RoomTwo, MapType.RoomThree, MapType.PlankPileOne,
+                MapType.PlankPileTwo, MapType.PlankPileThree, MapType.CorridorOne, MapType.CorridorTwo, MapType.CorridorThree, MapType.BugTrapOne, MapType.BugTrapTwo,
+                MapType.BugTrapThree
+            }.Contains(map);
         }
     }
 }

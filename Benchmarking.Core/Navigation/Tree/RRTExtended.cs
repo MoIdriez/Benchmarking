@@ -61,6 +61,8 @@ namespace Benchmarking.Core.Navigation.Tree
 
             while (currentLocation.DistanceTo(Goal) > _settings.GoalDistance || ExploredMap.IsObstructed(currentLocation, Goal))
             {
+                if (TimeExpired)
+                    return new List<Point> { Robot.Location };
                 (currentLocation, var nt) = ExploredMap.GetRandomLocation(nodes, _settings.GrowthSize, R);
 
                 ExploredMap.RewireNodes(nodes, nt, currentLocation, _settings.GrowthSize);

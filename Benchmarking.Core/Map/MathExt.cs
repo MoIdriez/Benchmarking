@@ -70,17 +70,17 @@ namespace Benchmarking.Core.Map
 
         public static double Percentage(this long v, long m)
         {
-            return v / m * 100;
+            return v / m;
         }
 
         public static double Percentage(this double v, double m)
         {
-            return v / m * 100;
+            return v / m;
         }
 
         public static double Percentage(this int v, int m)
         {
-            return (double)v / m * 100;
+            return (double)v / m;
         }
 
         public static double DiagonalOfRectangle(int w, int h)
@@ -88,7 +88,7 @@ namespace Benchmarking.Core.Map
             return Math.Sqrt(Math.Pow(w, 2) + Math.Pow(h, 2));
         }
 
-        public static double PercentageFromRange(double i, double mn, double mx)
+        public static double PercentageFromRange(this double i, double mn, double mx)
         {
             return (i - mn) / (mx - mn);
         }

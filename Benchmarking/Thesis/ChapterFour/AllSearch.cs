@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,121 @@ namespace Benchmarking.Thesis.ChapterFour
         {
             _output = output;
         }
+        
+
+
+        [Fact]
+        public void AllConsecutiveRuns()
+        {
+            var r = new Random();
+            var sw = new Stopwatch();
+            var sb = new StringBuilder();
+
+            var potentialFieldSettings = new PotentialFieldSettings(3, 4, 9);
+            var pheromoneSettings = new PheromoneSettings(1, 5, 8);
+            
+            var rrtSettings = new RRTSettings(12, 16);
+            var rrtExtendedSettings = new RRTSettings(14, 14);
+            
+            var rrtSettingsGen = new RRTSettings(40, 30);
+            var rrtExtendedSettingsGen = new RRTSettings(20, 30);
+
+            var fileName = $"AllRunsFinal-{Guid.NewGuid()}.txt";
+
+            sw.Start();
+            for (var i = 51; i < 100; i++)
+            {
+                foreach (var map in ThesisMaps.GetStaticMaps(r))
+                {
+                    Run(Evaluate.ApproachType.BaseLine, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, baseLine: true), i, map);
+                    Run(Evaluate.ApproachType.AStar, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000), i, map);
+                    Run(Evaluate.ApproachType.PotentialField, new PotentialField(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, potentialFieldSettings), i, map);
+                    Run(Evaluate.ApproachType.PheromoneField, new PheromonePotentialField(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, potentialFieldSettings, pheromoneSettings), i, map);
+                    Run(Evaluate.ApproachType.RRT, new RRT(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtSettings), i, map);
+                    Run(Evaluate.ApproachType.RRTExtended, new RRTExtended(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtExtendedSettings), i, map);
+                }
+
+                foreach (var map in ThesisMaps.GetGeneratedMaps(r))
+                {
+                    Run(Evaluate.ApproachType.BaseLine, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, baseLine: true), i, map);
+                    Run(Evaluate.ApproachType.AStar, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000), i, map);
+                    Run(Evaluate.ApproachType.PotentialField, new PotentialField(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, potentialFieldSettings), i, map);
+                    Run(Evaluate.ApproachType.PheromoneField, new PheromonePotentialField(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, potentialFieldSettings, pheromoneSettings), i, map);
+                    Run(Evaluate.ApproachType.RRT, new RRT(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtSettingsGen), i, map);
+                    Run(Evaluate.ApproachType.RRTExtended, new RRTExtended(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtExtendedSettingsGen), i, map);
+                }
+
+                File.AppendAllText(fileName, sb.ToString());
+                sb = new StringBuilder();
+                _output.WriteLine($"{i}: {TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds):g}");
+            }
+
+            void Run(Evaluate.ApproachType approach, NavigationalMethod method, int i, (string mapName, int[,] map, Robot robot, Point goal) map)
+            {
+                try
+                {
+                    method.Run();
+                    sb.AppendLine($"{i},{approach},{map.mapName},{method.HasSeenGoal},{method.Time:F},{method.Robot.Steps.Count},{method.AverageVisibility:F},{method.PathSmoothness:F}");
+                }
+                catch (Exception ex)
+                {
+                    _output.WriteLine($"Exception: {i}|{approach}: {ex.Message} - {ex.StackTrace}");
+                }
+
+            }
+
+        }
+
+
+        [Fact]
+        public async Task AllCombinedRuns()
+        {
+            var tasks = new List<Task>();
+            var sn = new StateNotifier(_output, $"AllCombinedRuns-{Guid.NewGuid()}.txt");
+
+            var r = new Random();
+
+            var potentialFieldSettings = new PotentialFieldSettings(3, 4, 9);
+            var pheromoneSettings = new PheromoneSettings(1, 5, 8);
+            var rrtSettings = new RRTSettings(12, 16);
+            var rrtExtendedSettings = new RRTSettings(14, 14);
+
+            for (var i = 0; i < 1000; i++)
+            {
+                var staticMaps = ThesisMaps.GetStaticMaps(r);
+                var generatedMaps = ThesisMaps.GetGeneratedMaps(r);
+                var maps = staticMaps.Concat(generatedMaps).ToList();
+                foreach (var map in maps)
+                {
+                    tasks.Add(Run(Evaluate.ApproachType.BaseLine, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, baseLine: true), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.AStar, new AStar(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.PotentialField, new PotentialField(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, potentialFieldSettings), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.PheromoneField, new PheromonePotentialField(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, potentialFieldSettings, pheromoneSettings), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.RRT, new RRT(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtSettings), i, map));
+                    tasks.Add(Run(Evaluate.ApproachType.RRTExtended, new RRTExtended(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtExtendedSettings), i, map));
+                }
+            }
+            _output.WriteLine($"Ready to run");
+            sn.Run(tasks.Count, 100);
+            await Task.WhenAll(tasks);
+            sn.Result();
+
+            async Task Run(Evaluate.ApproachType approach, NavigationalMethod method, int i, (string mapName, int[,] map, Robot robot, Point goal) map)
+            {
+                try
+                {
+                    await Task.Run(method.Run);
+                    sn.NotifyCompletion(
+                        $"{i},{approach},{map.mapName},{method.HasSeenGoal},{method.Time:F},{method.Robot.Steps.Count},{method.AverageVisibility:F},{method.PathSmoothness:F}");
+                }
+                catch (Exception ex)
+                {
+                    _output.WriteLine($"Exception: {i}|{approach}: {ex.Message} - {ex.StackTrace}");
+                }
+
+            }
+        }
+
 
         [Fact]
         public async Task AllGeneratedRuns()
@@ -42,7 +158,7 @@ namespace Benchmarking.Thesis.ChapterFour
             var rrtSettings = new RRTSettings(12, 16);
             var rrtExtendedSettings = new RRTSettings(14, 14);
 
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 var maps = ThesisMaps.GetGeneratedMaps(r);
                 foreach (var map in maps)
@@ -55,7 +171,7 @@ namespace Benchmarking.Thesis.ChapterFour
                     tasks.Add(Run(Evaluate.ApproachType.RRTExtended, new RRTExtended(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtExtendedSettings), i, map));
                 }
             }
-
+            
             sn.Run(tasks.Count, 1);
             await Task.WhenAll(tasks);
             sn.Result();
@@ -65,8 +181,7 @@ namespace Benchmarking.Thesis.ChapterFour
                 try
                 {
                     await Task.Run(method.Run);
-                    sn.NotifyCompletion(
-                        $"{i},{approach},{map.mapName},{method.HasSeenGoal},{method.Time:F},{method.Robot.Steps.Count},{method.AverageVisibility:F},{method.PathSmoothness:F}");
+                    sn.NotifyCompletion($"{i},{approach},{map.mapName},{method.HasSeenGoal},{method.Time:F},{method.Robot.Steps.Count},{method.AverageVisibility:F},{method.PathSmoothness:F}");
                 }
                 catch (Exception ex)
                 {
@@ -154,7 +269,9 @@ namespace Benchmarking.Thesis.ChapterFour
         [Fact]
         public async Task EvaluateSearch()
         {
-            var data = await GetSearchData();
+            //var data = await GetSearchData();
+            // var data = (await File.ReadAllLinesAsync(FileRef.AllCombinedRuns1)).Select(r => new Evaluate.EvaluateData(r)).ToList();
+            var data = await GetCombinedData();
 
             // get stats on success
             _output.WriteLine("Average Success Rate");
@@ -177,6 +294,19 @@ namespace Benchmarking.Thesis.ChapterFour
                 _output.WriteLine($"Average Step: {all.Average(s => s.Steps):F} | Average success Step: {success.Average(s => s.Steps):F}");
                 _output.WriteLine($"StdDev: {success.Select(s => s.Steps).StandardDeviation():F} | Min: {success.Select(s => s.Steps).Min():F} | 25: {success.Select(s => s.Steps).Percentile(0.25):F} | 75: {success.Select(s => s.Steps).Percentile(0.75):F} | Max: {success.Select(s => s.Steps).Max():F}");
                 _output.WriteLine($"ALL StdDev: {all.Select(s => s.Steps).StandardDeviation():F} | Min: {all.Select(s => s.Steps).Min():F} | 25: {all.Select(s => s.Steps).Percentile(0.25):F} | 75: {all.Select(s => s.Steps).Percentile(0.75):F} | Max: {all.Select(s => s.Steps).Max():F}");
+                _output.WriteLine("----------------------------------------------------------");
+            }
+
+            _output.WriteLine("Time metric");
+            _output.WriteLine("----------------------------------------------------------");
+            foreach (Evaluate.ApproachType approach in Enum.GetValues(typeof(Evaluate.ApproachType)))
+            {
+                var all = data.Where(d => d.Approach == approach).ToList();
+                var success = all.Where(a => a.Success).ToList();
+                _output.WriteLine($"{approach}:");
+                _output.WriteLine($"Average Visibility: {all.Average(s => s.Time):F} | Average success Visibility: {success.Average(s => s.Time):F}");
+                _output.WriteLine($"StdDev: {success.Select(s => s.Time).StandardDeviation():F} | Min: {success.Select(s => s.Time).Min():F} | 25: {success.Select(s => s.Time).Percentile(0.25):F} | 75: {success.Select(s => s.Time).Percentile(0.75):F} | Max: {success.Select(s => s.Time).Max():F}");
+                _output.WriteLine($"ALL StdDev: {all.Select(s => s.Time).StandardDeviation():F} | Min: {all.Select(s => s.Time).Min():F} | 25: {all.Select(s => s.Time).Percentile(0.25):F} | 75: {all.Select(s => s.Time).Percentile(0.75):F} | Max: {all.Select(s => s.Time).Max():F}");
                 _output.WriteLine("----------------------------------------------------------");
             }
 
@@ -253,12 +383,104 @@ namespace Benchmarking.Thesis.ChapterFour
             }
         }
 
+        [Fact]
+        public void SpeedTest()
+        {
+            var maps = ThesisMaps.GetGeneratedMaps();
+            var map = maps.FirstOrDefault(m => m.mapName == "TunnelOne");
+
+            var rrtExtendedSettings = new RRTSettings(14, 14);
+            var results = new RRTExtended(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, rrtExtendedSettings).Run();
+            _output.WriteLine(results);
+        }
+
+        [Fact]
+        public async Task EvaluateScores()
+        {
+            var data = await GetCombinedData();
+            _output.WriteLine($"BS: {data.Where(d => d.Approach == Evaluate.ApproachType.BaseLine).Max(d => d.Time)}");
+            var eval = new Evaluate(data);
+            foreach (Evaluate.ApproachType approach in Enum.GetValues(typeof(Evaluate.ApproachType)))
+            {
+
+                var calculateSuccess = eval.CalculateSuccess(approach);
+                var path = eval.Path(approach);
+                var duration = eval.Duration(approach);
+                var visibility = eval.Visibility(approach);
+                var pathSmoothness = eval.PathSmoothness(approach);
+
+                var score = eval.GetScore(approach);
+                _output.WriteLine($"{approach}: Overall score: {score:F}");
+                //_output.WriteLine("Success: " + string.Join(" | ", calculateSuccess.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Path: " + string.Join(" | ", path.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Duration: " + string.Join(" | ", duration.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Visibility: " + string.Join(" | ", visibility.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("PathSmoothness: " + string.Join(" | ", pathSmoothness.Select(d => $"{d.Key}: {d.Value:F}%")));
+                _output.WriteLine("----------------------------------------------------------");
+            }
+
+            _output.WriteLine("==========================================================");
+            eval = new Evaluate(data.Where(d => !d.Map.ToString().Contains("Tunnel") && !d.Map.ToString().Contains("Obstacles")).ToList());
+            foreach (Evaluate.ApproachType approach in Enum.GetValues(typeof(Evaluate.ApproachType)))
+            {
+
+                var calculateSuccess = eval.CalculateSuccess(approach);
+                var path = eval.Path(approach);
+                var duration = eval.Duration(approach);
+                var visibility = eval.Visibility(approach);
+                var pathSmoothness = eval.PathSmoothness(approach);
+
+                var score = eval.GetScore(approach);
+                _output.WriteLine($"{approach}: Overall score: {score:F}");
+                //_output.WriteLine("Success: " + string.Join(" | ", calculateSuccess.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Path: " + string.Join(" | ", path.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Duration: " + string.Join(" | ", duration.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Visibility: " + string.Join(" | ", visibility.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("PathSmoothness: " + string.Join(" | ", pathSmoothness.Select(d => $"{d.Key}: {d.Value:F}%")));
+                _output.WriteLine("----------------------------------------------------------");
+            }
+
+            _output.WriteLine("==========================================================");
+            eval = new Evaluate(data.Where(d => d.Map.ToString().Contains("Tunnel") || d.Map.ToString().Contains("Obstacles")).ToList());
+            foreach (Evaluate.ApproachType approach in Enum.GetValues(typeof(Evaluate.ApproachType)))
+            {
+
+                var calculateSuccess = eval.CalculateSuccess(approach);
+                var path = eval.Path(approach);
+                var duration = eval.Duration(approach);
+                var visibility = eval.Visibility(approach);
+                var pathSmoothness = eval.PathSmoothness(approach);
+
+                var score = eval.GetScore(approach);
+                _output.WriteLine($"{approach}: Overall score: {score:F}");
+                //_output.WriteLine("Success: " + string.Join(" | ", calculateSuccess.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Path: " + string.Join(" | ", path.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Duration: " + string.Join(" | ", duration.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("Visibility: " + string.Join(" | ", visibility.Select(d => $"{d.Key}: {d.Value:F}%")));
+                //_output.WriteLine("PathSmoothness: " + string.Join(" | ", pathSmoothness.Select(d => $"{d.Key}: {d.Value:F}%")));
+                _output.WriteLine("----------------------------------------------------------");
+            }
+        }
+
         
 
         private async Task<List<Evaluate.EvaluateData>> GetSearchData()
         {
             var search1 = (await File.ReadAllLinesAsync(FileRef.AllSearch1)).Select(r => new Evaluate.EvaluateData(r)).ToList();
             var search2 = (await File.ReadAllLinesAsync(FileRef.AllSearch2)).Select(r => new Evaluate.EvaluateData(r)).ToList();
+            var maxSearch1 = search1.Max(s => s.Id);
+            foreach (var evaluateData in search2)
+            {
+                evaluateData.Id += maxSearch1 + 1;
+            }
+
+            search1.AddRange(search2);
+            return search1;
+        }
+        private async Task<List<Evaluate.EvaluateData>> GetCombinedData()
+        {
+            var search1 = (await File.ReadAllLinesAsync(FileRef.AllCombinedRuns1)).Select(r => new Evaluate.EvaluateData(r)).ToList();
+            var search2 = (await File.ReadAllLinesAsync(FileRef.AllCombinedRuns2)).Select(r => new Evaluate.EvaluateData(r)).ToList();
             var maxSearch1 = search1.Max(s => s.Id);
             foreach (var evaluateData in search2)
             {

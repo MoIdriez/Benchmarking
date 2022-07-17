@@ -22,16 +22,12 @@ namespace Benchmarking.Thesis.Maps
         {
             var configurations = new List<(string mapIdentifier, MapGenerator generator)>
             {
-                ("ObstacleOne", new MapGenerator(200, 200, new IntRange(10, 15), new IntRange(3, 5))),
-                ("ObstacleTwo", new MapGenerator(200, 200, new IntRange(70, 75), new IntRange(3, 5))),
-                ("ObstacleThree", new MapGenerator(200, 200, new IntRange(130, 135), new IntRange(3, 5))),
-                ("ObstacleFour", new MapGenerator(200, 200, new IntRange(190, 195), new IntRange(3, 5))),
-                ("ObstacleFive", new MapGenerator(200, 200, new IntRange(260, 265), new IntRange(3, 5))),
-                ("ObstacleSix", new MapGenerator(200, 200, new IntRange(330, 335), new IntRange(3, 5))),
-                ("ObstacleSeven", new MapGenerator(200, 200, new IntRange(390, 395), new IntRange(3, 5))),
-                ("ObstacleEight", new MapGenerator(200, 200, new IntRange(450, 455), new IntRange(3, 5))),
-                ("ObstacleNine", new MapGenerator(200, 200, new IntRange(510, 515), new IntRange(3, 5))),
-                ("ObstacleTen", new MapGenerator(200, 200, new IntRange(560, 565), new IntRange(3, 5)))
+                ("ObstacleOne", new MapGenerator(200, 200, new IntRange(70, 75), new IntRange(3, 5))),
+                ("ObstacleTwo", new MapGenerator(200, 200, new IntRange(190, 195), new IntRange(3, 5))),
+                ("ObstacleThree", new MapGenerator(200, 200, new IntRange(330, 335), new IntRange(3, 5))),
+                ("ObstacleFour", new MapGenerator(200, 200, new IntRange(450, 455), new IntRange(3, 5))),
+                ("ObstacleFive", new MapGenerator(200, 200, new IntRange(510, 515), new IntRange(3, 5)))
+                
             };
             return configurations.Select(c =>
             {
@@ -44,16 +40,12 @@ namespace Benchmarking.Thesis.Maps
         {
             var configurations = new List<(string mapIdentifier, MapGenerator generator)>
             {
-                ("TunnelOne", new MapGenerator(200, 200, new IntRange(11, 15), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
-                ("TunnelTwo", new MapGenerator(200, 200, new IntRange(21, 25), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
-                ("TunnelThree", new MapGenerator(200, 200, new IntRange(31, 35), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
+                ("TunnelOne", new MapGenerator(200, 200, new IntRange(110, 155), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
+                ("TunnelTwo", new MapGenerator(200, 200, new IntRange(81, 85), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
+                ("TunnelThree", new MapGenerator(200, 200, new IntRange(61, 65), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
                 ("TunnelFour", new MapGenerator(200, 200, new IntRange(41, 45), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
-                ("TunnelFive", new MapGenerator(200, 200, new IntRange(51, 55), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
-                ("TunnelSix", new MapGenerator(200, 200, new IntRange(61, 65), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
-                ("TunnelSeven", new MapGenerator(200, 200, new IntRange(71, 75), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
-                ("TunnelEight", new MapGenerator(200, 200, new IntRange(81, 85), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
-                ("TunnelNine", new MapGenerator(200, 200, new IntRange(91, 95), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7))),
-                ("TunnelTen", new MapGenerator(200, 200, new IntRange(110, 155), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7)))
+                ("TunnelFive", new MapGenerator(200, 200, new IntRange(21, 25), new IntRange(7, 10), new IntRange(7, 10), new IntRange(25, 40), new IntRange(5, 7)))
+                
             };
             return configurations.Select(c =>
             {

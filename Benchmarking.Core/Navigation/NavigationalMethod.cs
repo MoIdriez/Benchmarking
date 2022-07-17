@@ -17,11 +17,10 @@ namespace Benchmarking.Core.Navigation
         
         public string Run()
         {
-            var sw = new Stopwatch();
-            sw.Start();
+            _sw.Start();
 
             var i = 0;
-            while (!Robot.Location.Equals(Goal) && i < MaxIterations && !IsStuck)
+            while (!Robot.Location.Equals(Goal) && i < MaxIterations && !IsStuck && !TimeExpired)
             {
                 //UpdateExploredMap();
                 if (HasSeenGoal)
@@ -37,7 +36,7 @@ namespace Benchmarking.Core.Navigation
                 i++;
             }
 
-            Time = sw.ElapsedMilliseconds;
+            Time = _sw.ElapsedMilliseconds;
             return Result();
         }
 
@@ -65,6 +64,7 @@ namespace Benchmarking.Core.Navigation
         }
 
         private List<Point>? _stepsTillGoal;
+        private readonly Stopwatch _sw = new ();
 
         protected abstract void Loop();
         public abstract string AdditionalMetrics();
@@ -85,6 +85,9 @@ namespace Benchmarking.Core.Navigation
         
         public int IsStuckCount { get; set; } = 40;
         public int IsStuckVerifier { get; set; } = 10;
+
+        public int MaxTime { get; set; } = 10_000;
+        public bool TimeExpired => _sw.ElapsedMilliseconds > MaxTime;
 
         public double DistanceToGoal => Robot.Location.DistanceTo(Goal);
         public double PathSmoothness => Robot.Steps.Select(s => s.Location).ToArray().ToSegments().ToArray().GetPathSmoothness();

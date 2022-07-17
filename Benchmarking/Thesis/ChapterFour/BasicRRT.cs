@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,18 +36,19 @@ namespace Benchmarking.Thesis.ChapterFour
             {
                 var items = line.Split(",");
 
-                Id = int.Parse(items[0]);
-                Approach = (Evaluate.ApproachType)Enum.Parse(typeof(Evaluate.ApproachType), items[1]);
-                MapName = items[2];
-                Success = bool.Parse(items[3]);
-                Time = double.Parse(items[4]);
-                Steps = int.Parse(items[5]);
-                AverageVisibility = double.Parse(items[6]);
-                PathSmoothness = double.Parse(items[7]);
-                NewPlanCount = int.Parse(items[8]);
-                GrowthSize = int.Parse(items[9]);
-                GoalDistance = int.Parse(items[10]);
+                //Id = int.Parse(items[0]);
+                Approach = (Evaluate.ApproachType)Enum.Parse(typeof(Evaluate.ApproachType), items[0]);
+                MapName = items[1];
+                Success = bool.Parse(items[2]);
+                Time = double.Parse(items[3]);
+                Steps = int.Parse(items[4]);
+                AverageVisibility = double.Parse(items[5]);
+                PathSmoothness = double.Parse(items[6]);
+                NewPlanCount = int.Parse(items[7]);
+                GrowthSize = int.Parse(items[8]);
+                GoalDistance = int.Parse(items[9]);
             }
+
             public int Id { get; set; }
             public Evaluate.ApproachType Approach { get; set; }
             public string MapName { get; set; }
@@ -68,64 +70,80 @@ namespace Benchmarking.Thesis.ChapterFour
 
             var settings = new RRTSettings(15, 30);
             var result = new RRT(map, robot, goal, 3000, settings).Run();
-            
+
             _output.WriteLine(result);
             await Viewer.Image($"rrt-{Guid.NewGuid()}.png", map, robot, goal);
         }
-        
+
         [Fact]
         public async Task RRTExtended()
         {
             var (map, robot, goal) = ThesisMaps.GenerateMap(ThesisMaps.CorridorThree, _random);
             var settings = new RRTSettings(15, 30);
             var result = new RRTExtended(map, robot, goal, 3000, settings).Run();
-            
+
             _output.WriteLine(result);
             await Viewer.Image($"rrtstar-{Guid.NewGuid()}.png", map, robot, goal);
         }
 
         [Fact]
-        public async Task ParameterExploration()
+        public void ParameterExploration()
         {
-            var tasks = new List<Task>();
-            var sn = new StateNotifier(_output, $"RRTSearch-{Guid.NewGuid()}.txt");
+            var sw = new Stopwatch();
+            var sb = new StringBuilder();
 
             var r = new Random();
+            var fileName = $"RRTSearch-{Guid.NewGuid()}.txt";
 
-            for (var growthSize = 10; growthSize < 30; growthSize+=2)
+            
+
+            sw.Start();
+
+            for (var gs = 10; gs < 100; gs+=20)
             {
-                for (var goalDistance = 10; goalDistance < 30; goalDistance+=2)
+                for (var gd = 5; gd < 30; gd+=10)
                 {
-                    var settings = new RRTSettings(growthSize, goalDistance);
-
-                    for (var i = 0; i < 10; i++)
+                    var rrtSettings = new RRTSettings(gs, gd);
+                    var rrtExtendedSettings = new RRTSettings(gs, gd);
+                    for (var i = 0; i < 5; i++)
                     {
-                        var maps = ThesisMaps.GetStaticMaps(r);
+                        var maps = ThesisMaps.GetGeneratedMaps(r);
                         foreach (var map in maps)
                         {
-                            tasks.Add(Run("RRT", new RRT(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, settings), i, map));
-                            tasks.Add(Run("RRTExtended", new RRTExtended(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000, settings), i, map));
+                            Run(Evaluate.ApproachType.RRT,
+                                new RRT(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000,
+                                    rrtSettings), i, map);
+                            Run(Evaluate.ApproachType.RRTExtended,
+                                new RRTExtended(map.map, new Robot(map.robot.Location, map.robot.FovLength), map.goal, 1000,
+                                    rrtExtendedSettings), i, map);
                         }
-                    }
 
+                        File.AppendAllText(fileName, sb.ToString());
+                        sb = new StringBuilder();
+                        _output.WriteLine($"{i}: {TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds):g}");
+                    }
                 }
             }
 
-            sn.Run(tasks.Count, 100);
-            await Task.WhenAll(tasks);
-            sn.Result();
 
-            async Task Run(string methodName, NavigationalMethod method, int i, (string mapName, int[,] map, Robot robot, Point goal) map)
+            void Run(Evaluate.ApproachType approach, NavigationalMethod method, int i, (string mapName, int[,] map, Robot robot, Point goal) map)
             {
-                await Task.Run(method.Run);
-                sn.NotifyCompletion($"{i},{methodName},{map.mapName},{method.HasSeenGoal},{method.Time:F},{method.Robot.Steps.Count},{method.AverageVisibility:F},{method.PathSmoothness:F},{method.AdditionalMetrics()}");
+                try
+                {
+                    method.Run();
+                    sb.AppendLine($"{approach},{map.mapName},{method.HasSeenGoal},{method.Time:F},{method.Robot.Steps.Count},{method.AverageVisibility:F},{method.PathSmoothness:F}{method.AdditionalMetrics()}");
+                }
+                catch (Exception ex)
+                {
+                    _output.WriteLine($"Exception: {i}|{approach}: {ex.Message} - {ex.StackTrace}");
+                }
             }
         }
-        
+
         [Fact]
         public void RRTAnalysis()
         {
-            var all = File.ReadAllLines(FileRef.RRTSearch).Select(l => new Data(l)).Where(d => d.Approach == Evaluate.ApproachType.RRT).ToList();
+            var all = File.ReadAllLines(FileRef.RRTSearch2).Select(l => new Data(l)).Where(d => d.Approach == Evaluate.ApproachType.RRT).ToList();
 
             _output.WriteLine($"Final Analysis: Average: {all.Count(d => d.Success).Percentage(all.Count)}");
             _output.WriteLine("----------------------------------------------------------");
@@ -212,6 +230,35 @@ namespace Benchmarking.Thesis.ChapterFour
                 _output.WriteLine($"{g.Key.GrowthSize},{g.Key.GoalDistance}: \t{g.Steps:F}");
             }
 
+        }
+
+        [Fact]
+        public void ParameterAnalysis()
+        {
+            var all = File.ReadAllLines(FileRef.RRTSearch3).Select(l => new Data(l)).ToList();
+
+            var rrt = all
+                .Where(a => a.Approach == Evaluate.ApproachType.RRT)
+                .GroupBy(g => new { g.GrowthSize, g.GoalDistance })
+                .Select(g => new { g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()), TimeSuccess = g.Where(a => a.Success).Max(a => a.Time) })
+                .OrderByDescending(g => g.Success).ToList();
+
+            foreach (var g in rrt.Take(5))
+            {
+                _output.WriteLine($"{g.Key.GrowthSize},{g.Key.GoalDistance}: \t{g.Success:F} \t{g.TimeSuccess:F}");
+            }
+
+            _output.WriteLine("==========================================================");
+            rrt = all
+                .Where(a => a.Approach == Evaluate.ApproachType.RRTExtended)
+                .GroupBy(g => new { g.GrowthSize, g.GoalDistance })
+                .Select(g => new { g.Key, Success = g.Count(r => r.Success).Percentage(g.Count()), TimeSuccess = g.Where(a => a.Success).Max(a => a.Time) })
+                .OrderByDescending(g => g.Success).ToList();
+
+            foreach (var g in rrt.Take(5))
+            {
+                _output.WriteLine($"{g.Key.GrowthSize},{g.Key.GoalDistance}: \t{g.Success:F} \t{g.TimeSuccess:F}");
+            }
         }
     }
 }
