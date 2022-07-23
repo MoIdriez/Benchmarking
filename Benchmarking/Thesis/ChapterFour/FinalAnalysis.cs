@@ -4,16 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Benchmarking.Thesis.ChapterFour.Data;
 using Benchmarking.Thesis.ChapterThree;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Benchmarking.Thesis.ChapterFour.Data
+namespace Benchmarking.Thesis.ChapterFour
 {
     public class FinalAnalysis
     {
         private readonly ITestOutputHelper _output;
-        
+
         public FinalAnalysis(ITestOutputHelper output)
         {
             _output = output;
@@ -23,7 +24,7 @@ namespace Benchmarking.Thesis.ChapterFour.Data
         public void Overview()
         {
             var data = File.ReadAllLines(FileRef.AllRunsFinal).Select(d => new Evaluate.EvaluateData(d)).ToList();
-            
+
             EvaluateScore(new Evaluate(data));
             _output.WriteLine("==========================================================");
             _output.WriteLine($"StaticMaps");
@@ -55,7 +56,7 @@ namespace Benchmarking.Thesis.ChapterFour.Data
                 }
             }
         }
-        
+
 
 
         private void EvaluateScore(Evaluate eval)

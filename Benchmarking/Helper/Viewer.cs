@@ -11,6 +11,27 @@ namespace Benchmarking.Helper
 {
     internal static class Viewer
     {
+        public static void ChapterOne(int[,] map, Robot robot, Point goal)
+        {
+            var image = new Bitmap(map.Width(), map.Height());
+            var grf = Graphics.FromImage(image);
+            for (var x = 0; x < map.Width(); x++)
+            {
+                for (var y = 0; y < map.Height(); y++)
+                {
+                    if (map[x , y] == MapExt.WallPoint)
+                        image.SetPixel(x, y, Color.Black);
+                    if (map[x, y] == MapExt.DefaultValue)
+                        image.SetPixel(x, y, Color.White);
+                }
+            }
+
+            grf.FillEllipse(new SolidBrush(Color.LightGreen), goal.X, goal.Y, 5, 5);
+            grf.FillEllipse(new SolidBrush(Color.LightBlue), robot.Location.X, robot.Location.Y, 5, 5);
+            image.Save($"Images/ChapterOne-{Guid.NewGuid()}.png", ImageFormat.Png);
+        }
+
+
         public static async Task Image(int[,] map, Robot robot, Point goal)
         {
             await Image($"Images/{Guid.NewGuid()}.png", map, robot, goal);

@@ -67,7 +67,7 @@ namespace Benchmarking.Thesis.ChapterThree
             return (success + path + duration + visibility + pathSmoothness) / 5.0;
         }
 
-        public double Score(ApproachType approach, double pw, double dw, double psw)
+        public double Score(ApproachType approach, double pathWeight, double durationWeight, double pathSmoothnessWeight)
         {
             var success = CalculateSuccess(approach).Any() ? CalculateSuccess(approach).Average(a => a.Value) : 0;
             var path = Path(approach).Any() ? Path(approach).Average(a => a.Value) : 0;
@@ -81,7 +81,7 @@ namespace Benchmarking.Thesis.ChapterThree
             //visibility /= 100;
             //pathSmoothness /= 100;
 
-            return success * ((pw * path + (1.0 - pw) * visibility + (dw * duration + psw * pathSmoothness)) / 2.0);
+            return success * ((pathWeight * path + (1.0 - pathWeight) * visibility + (durationWeight * duration + pathSmoothnessWeight * pathSmoothness)) / 2.0);
         }
         
         public Dictionary<MapType, double> CalculateSuccess(ApproachType approach)
