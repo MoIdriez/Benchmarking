@@ -44,10 +44,10 @@ namespace Benchmarking.Helper
             {
                 for (var y = 0; y < map.Height() / scale; y++)
                 {
-                    if (map[x * scale, y * scale] == MapExt.WallPoint)
+                    if (map[x, y] == MapExt.WallPoint)
                         image.SetPixel(x, y, Color.Black);
-                    if (map[x * scale, y * scale] == MapExt.DefaultValue)
-                        image.SetPixel(x, y, Color.DimGray);
+                    if (map[x, y] == MapExt.DefaultValue)
+                        image.SetPixel(x, y, Color.White);
                     //else if (map[x * scale, y * scale] == MapExt.RobotSpawn)
                     //    image.SetPixel(x, y, Color.Blue);
                     //else if (map[x * scale, y * scale] == MapExt.GoalSpawn)
@@ -60,7 +60,8 @@ namespace Benchmarking.Helper
 
             foreach (var step in robot.Steps)
             {
-                grf.FillEllipse(new SolidBrush(Color.LightBlue), step.Location.X / scale, step.Location.Y / scale, circleSize / scale, circleSize / scale);
+                image.SetPixel(step.Location.X, step.Location.Y, Color.LightBlue);
+                //grf.FillEllipse(new SolidBrush(Color.LightBlue), step.Location.X / scale, step.Location.Y / scale, circleSize / scale, circleSize / scale);
             }
 
             await Task.Run(() => image.Save(fileName, ImageFormat.Png));

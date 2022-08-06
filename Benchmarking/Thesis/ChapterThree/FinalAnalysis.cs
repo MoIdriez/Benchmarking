@@ -125,15 +125,44 @@ namespace Benchmarking.Thesis.ChapterThree
             var data = File.ReadAllLines(FileRef.FinalAll).Select(l => new Evaluate.EvaluateData(l)).ToList();
             var eval = new Evaluate(data);
 
-            _output.WriteLine($"Path Avg: {data.Where(d => d.Approach == Evaluate.ApproachType.BaseLine).Average(s => s.Steps)}| {data.Where(d => d.Approach == Evaluate.ApproachType.PheromoneField).Average(s => s.Steps)}| {data.Where(d => d.Approach == Evaluate.ApproachType.PotentialField).Average(s => s.Steps)}|");
-            _output.WriteLine($"Time Avg: {data.Where(d => d.Approach == Evaluate.ApproachType.BaseLine).Average(s => s.Time)}| {data.Where(d => d.Approach == Evaluate.ApproachType.PheromoneField).Average(s => s.Time)}| {data.Where(d => d.Approach == Evaluate.ApproachType.PotentialField).Average(s => s.Time)}|");
+            //_output.WriteLine($"Path Avg: {data.Where(d => d.Approach == Evaluate.ApproachType.BaseLine).Average(s => s.Steps)}| {data.Where(d => d.Approach == Evaluate.ApproachType.PheromoneField).Average(s => s.Steps)}| {data.Where(d => d.Approach == Evaluate.ApproachType.PotentialField).Average(s => s.Steps)}|");
+            //_output.WriteLine($"Time Avg: {data.Where(d => d.Approach == Evaluate.ApproachType.BaseLine).Average(s => s.Time)}| {data.Where(d => d.Approach == Evaluate.ApproachType.PheromoneField).Average(s => s.Time)}| {data.Where(d => d.Approach == Evaluate.ApproachType.PotentialField).Average(s => s.Time)}|");
+
+            var m = data.Count(d => d.Approach == Evaluate.ApproachType.PotentialField);
+            var n = data.Count(d => d.Approach == Evaluate.ApproachType.PheromoneField);
 
             var ppath = eval.Path(Evaluate.ApproachType.PotentialField);
             var pfpath = eval.Path(Evaluate.ApproachType.PheromoneField);
-            var pathPlot = PlotTwoMetric(ppath.Select(p => p.Value).ToArray(), pfpath.Select(p => p.Value).ToArray(), "Path Efficiency").Render();
-            var durationPlot = PlotTwoMetric(eval.Duration(Evaluate.ApproachType.PotentialField).Select(p => p.Value).ToArray(), eval.Duration(Evaluate.ApproachType.PheromoneField).Select(p => p.Value).ToArray(), "Time Efficiency").Render();
-            var visibilityPlot = PlotTwoMetric(eval.Visibility(Evaluate.ApproachType.PotentialField).Select(p => p.Value).ToArray(), eval.Visibility(Evaluate.ApproachType.PheromoneField).Select(p => p.Value).ToArray(), "Visibility").Render();
-            var pathSmoothnessPlot = PlotTwoMetric(eval.PathSmoothness(Evaluate.ApproachType.PotentialField).Select(p => p.Value).ToArray(), eval.PathSmoothness(Evaluate.ApproachType.PheromoneField).Select(p => p.Value).ToArray(), "Path Smoothness Efficiency").Render();
+
+            var pv = ppath.Select(p => p.Value).ToList();
+            pv.Insert(10, 0);
+            pv.Add(0);
+            pv.Add(0);
+            pv.Add(0);
+            pv.Add(0);
+
+            var pathPlot = PlotTwoMetric(pv.ToArray(), pfpath.Select(p => p.Value).ToArray(), "Path Length Score").Render();
+            var doubles = eval.Duration(Evaluate.ApproachType.PotentialField).Select(p => p.Value).ToList();
+            doubles.Insert(10, 0);
+            doubles.Add(0);
+            doubles.Add(0);
+            doubles.Add(0);
+            doubles.Add(0);
+            var durationPlot = PlotTwoMetric(doubles.ToArray(), eval.Duration(Evaluate.ApproachType.PheromoneField).Select(p => p.Value).ToArray(), "Time Score").Render();
+            var array = eval.Visibility(Evaluate.ApproachType.PotentialField).Select(p => p.Value).ToList();
+            array.Insert(10, 0);
+            array.Add(0);
+            array.Add(0);
+            array.Add(0);
+            array.Add(0);
+            var visibilityPlot = PlotTwoMetric(array.ToArray(), eval.Visibility(Evaluate.ApproachType.PheromoneField).Select(p => p.Value).ToArray(), "Visibility Score").Render();
+            var basic = eval.PathSmoothness(Evaluate.ApproachType.PotentialField).Select(p => p.Value).ToList();
+            basic.Insert(10, 0);
+            basic.Add(0);
+            basic.Add(0);
+            basic.Add(0);
+            basic.Add(0);
+            var pathSmoothnessPlot = PlotTwoMetric(basic.ToArray(), eval.PathSmoothness(Evaluate.ApproachType.PheromoneField).Select(p => p.Value).ToArray(), "Path Smoothness Score").Render();
 
             using var bmp = new Bitmap(1200, 500);
             using var gfx = Graphics.FromImage(bmp);
@@ -233,6 +262,9 @@ namespace Benchmarking.Thesis.ChapterThree
         private Plot PlotTwoMetric(double[] basic, double[] extended, string title)
         {
             var plt = new Plot(600, 250);
+
+            basic = basic.Select(b => b*100).ToArray();
+            extended = extended.Select(b => b*100).ToArray();
 
             _output.WriteLine($"==========================================================");
             var bar1 = plt.AddBar(basic, new double[] { 1, 3, 5, 8, 10, 12, 15, 17, 19, 22, 24, 26, 29, 31, 33, 36, 38, 40 });

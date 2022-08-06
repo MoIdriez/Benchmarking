@@ -38,6 +38,48 @@ namespace Benchmarking.Thesis.ChapterThree
         }
 
         [Fact]
+        public void FinalPheromoneScatter()
+        {
+            var all = File.ReadAllLines(FileRef.FinalPheromone).Select(l => new PfData(l)).ToList();
+            var scatters = new List<BasicPotentialFieldAnalysis.Scatter>();
+
+            foreach (var result in all.Where(w => w.Success))// && !w.MapName.Contains("One")))
+            {
+                var i = scatters.FirstOrDefault(i => Math.Abs(i.ObstacleRange - result.Constant) < 0.001 && Math.Abs(i.ObstacleConstant - result.StrengthIncrease) < 0.001 && Math.Abs(i.AttractiveConstant - result.Range) < 0.001);
+                if (i == default)
+                    scatters.Add(new BasicPotentialFieldAnalysis.Scatter(result.Constant, result.StrengthIncrease, result.Range));
+                else
+                    i.Counter += 1;
+            }
+
+            var byMap = all.GroupBy(m => m.MapName).Select(b => new { b.Key, Succes = b.Count(c => c.Success).Percentage(b.Count()) }).ToList();
+            //var byParam = all.GroupBy(m => new { m.AttractiveConstant, m.ObstacleConstant, m.ObstacleRange }).Select(b => new { b.Key, Succes = b.Count(c => c.Success).Percentage(b.Count()) }).ToList();
+            //var byParamFilter = all.Where(a => !a.MapName.Contains("One")).GroupBy(m => new { m.AttractiveConstant, m.ObstacleConstant, m.ObstacleRange }).Select(b => new { b.Key, Succes = b.Count(c => c.Success).Percentage(b.Count()) }).ToList();
+
+            var byParam = scatters.Select(s => s.Counter.Percentage(360)).ToList();
+
+            _output.WriteLine($"Success Rate: {all.Count(a => a.Success).Percentage(all.Count)}");
+            _output.WriteLine($"MT: {(byMap.Select(g => g.Succes).StandardDeviation() * 100):F}\t{(byMap.Select(g => g.Succes).Min() * 100):F}\t{(byMap.Select(g => g.Succes).Percentile(0.25) * 100):F}\t{(byMap.Select(g => g.Succes).Percentile(0.5) * 100):F}\t{(byMap.Select(g => g.Succes).Percentile(0.75) * 100):F}\t{(byMap.Select(g => g.Succes).Max() * 100):F}");
+            _output.WriteLine($"PT: {(byParam.StandardDeviation() * 100):F}\t{(byParam.Min() * 100):F}\t{(byParam.Percentile(0.25) * 100):F}\t{(byParam.Percentile(0.5) * 100):F}\t{(byParam.Percentile(0.75) * 100):F}\t{(byParam.Max() * 100):F}");
+            //_output.WriteLine($"PT: {(byParam.Select(g => g.Succes).StandardDeviation() * 100):F}\t{(byParam.Select(g => g.Succes).Min() * 100):F}\t{(byParam.Select(g => g.Succes).Percentile(0.25) * 100):F}\t{(byParam.Select(g => g.Succes).Percentile(0.5) * 100):F}\t{(byParam.Select(g => g.Succes).Percentile(0.75) * 100):F}\t{(byParam.Select(g => g.Succes).Max() * 100):F}");
+            //_output.WriteLine($"PTO: {(byParamFilter.Select(g => g.Succes).StandardDeviation() * 100):F}\t{(byParamFilter.Select(g => g.Succes).Min() * 100):F}\t{(byParamFilter.Select(g => g.Succes).Percentile(0.25) * 100):F}\t{(byParamFilter.Select(g => g.Succes).Percentile(0.5) * 100):F}\t{(byParamFilter.Select(g => g.Succes).Percentile(0.75) * 100):F}\t{(byParamFilter.Select(g => g.Succes).Max() * 100):F}");
+            //var mapNames = all.Select(m => m.MapName).Distinct().ToList();
+            //foreach (var mapName in mapNames)
+            //{
+            //    _output.WriteLine($"{mapName}");
+            //}
+
+            ////var max = 0.0;
+            //foreach (var scatter in scatters)//.OrderByDescending(s => s.Counter).Take(10))
+            //{
+            //    //    //max = Math.Max(max, scatter.Counter.Percentage(360) * 100);
+            //    _output.WriteLine($"{all.Count(i => !i.MapName.Contains("One") && Math.Abs(i.Constant - scatter.ObstacleRange) < 0.01 && Math.Abs(i.StrengthIncrease - scatter.ObstacleConstant) < 0.001 && Math.Abs(i.Range - scatter.AttractiveConstant) < 0.001)}"); 
+            //    //    _output.WriteLine($"{scatter.ObstacleRange},{scatter.ObstacleConstant},{scatter.AttractiveConstant},{(scatter.Counter.Percentage(max) * 100)}");
+            //}
+            
+        }
+
+        [Fact]
         public void ExtensiveSearchAnalysis()
         {
             _output.WriteLine("Extensive Search Analysis");

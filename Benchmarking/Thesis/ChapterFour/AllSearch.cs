@@ -397,7 +397,9 @@ namespace Benchmarking.Thesis.ChapterFour
         [Fact]
         public async Task EvaluateScores()
         {
-            var data = await GetCombinedData();
+            //var data = await GetCombinedData();
+            var data = File.ReadAllLines(ChapterThree.Data.FileRef.FinalAll).Select(l => new Evaluate.EvaluateData(l)).ToList();
+            
             _output.WriteLine($"BS: {data.Where(d => d.Approach == Evaluate.ApproachType.BaseLine).Max(d => d.Time)}");
             var eval = new Evaluate(data);
             foreach (Evaluate.ApproachType approach in Enum.GetValues(typeof(Evaluate.ApproachType)))

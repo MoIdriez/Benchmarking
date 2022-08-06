@@ -94,7 +94,7 @@ namespace Benchmarking.Core.Navigation.Dijkstra
 
         private static Node GetFirst(Dictionary<int, Node> nodes)
         {
-            return nodes.OrderBy(n => n.Value.Cost).First().Value;
+            return nodes.MinBy(n => n.Value.Cost).Value;
         }
 
         private static List<Point> GetPlan(Node successor)

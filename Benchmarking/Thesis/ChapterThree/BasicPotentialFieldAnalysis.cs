@@ -77,6 +77,67 @@ namespace Benchmarking.Thesis.ChapterThree
         }
 
         [Fact]
+        public void FinalScatter()
+        {
+            var all = File.ReadAllLines(FileRef.FinalPotential).Select(l => new Data(l)).ToList();
+            var scatters = new List<Scatter>();
+
+            foreach (var result in all.Where(w => w.Success))
+            {
+                var i = scatters.FirstOrDefault(i => i.ObstacleRange == result.ObstacleRange && i.ObstacleConstant == result.ObstacleConstant && i.AttractiveConstant == result.AttractiveConstant);
+                if (i == default)
+                    scatters.Add(new Scatter(result.ObstacleRange, result.ObstacleConstant, result.AttractiveConstant));
+                else
+                    i.Counter += 1;
+            }
+
+            var max = 0.0;
+            foreach (var scatter in scatters)//.OrderByDescending(s => s.Counter).Take(10))
+            {
+                max = Math.Max(max, scatter.Counter.Percentage(360) * 100);
+                _output.WriteLine($"{scatter.AttractiveConstant},{scatter.ObstacleConstant},{scatter.ObstacleRange},{(scatter.Counter.Percentage(360) * 100)}");
+            }
+            _output.WriteLine($"{max} - {(max * 0.75)}");
+        }
+
+        [Fact]
+        public void FinalPfTable()
+        {
+            var all = File.ReadAllLines(FileRef.FinalPotential).Select(l => new Data(l)).ToList();
+            var scatters = new List<Scatter>();
+
+            foreach (var result in all.Where(w => w.Success))
+            {
+                var i = scatters.FirstOrDefault(i => i.ObstacleRange == result.ObstacleRange && i.ObstacleConstant == result.ObstacleConstant && i.AttractiveConstant == result.AttractiveConstant);
+                if (i == default)
+                    scatters.Add(new Scatter(result.ObstacleRange, result.ObstacleConstant, result.AttractiveConstant));
+                else
+                    i.Counter += 1;
+            }
+
+            var byMap = all.GroupBy(m => m.MapName).Select(b => new { b.Key, Succes = b.Count(c => c.Success).Percentage(b.Count())  }).ToList();
+            var byParam = all.GroupBy(m => new { m.AttractiveConstant, m.ObstacleConstant, m.ObstacleRange }).Select(b => new { b.Key, Succes = b.Count(c => c.Success).Percentage(b.Count())  }).ToList();
+            var byParamFilter = all.Where(a => !a.MapName.Contains("One")).GroupBy(m => new { m.AttractiveConstant, m.ObstacleConstant, m.ObstacleRange }).Select(b => new { b.Key, Succes = b.Count(c => c.Success).Percentage(b.Count())  }).ToList();
+            _output.WriteLine($"Success Rate: {all.Count(a => a.Success).Percentage(all.Count)}");
+            _output.WriteLine($"By map type: {byMap.Select(g => g.Succes).Percentile(0.25)*100} {byMap.Select(g => g.Succes).Percentile(0.5)*100}");
+            _output.WriteLine($"By param type: {byParam.Select(g => g.Succes).Percentile(0.25)*100} {byParam.Select(g => g.Succes).Percentile(0.5)*100}");
+            _output.WriteLine($"By param type -One: {byParamFilter.Select(g => g.Succes).Percentile(0.25)*100} {byParamFilter.Select(g => g.Succes).Percentile(0.5)*100}");
+            var mapNames = all.Select(m => m.MapName).Distinct().ToList();
+            foreach (var mapName in mapNames)
+            {
+                _output.WriteLine($"{mapName}");
+            }
+
+            //var max = 0.0;
+            //foreach (var scatter in scatters)//.OrderByDescending(s => s.Counter).Take(10))
+            //{
+            //    max = Math.Max(max, scatter.Counter.Percentage(360) * 100);
+            //    _output.WriteLine($"{scatter.AttractiveConstant},{scatter.ObstacleConstant},{scatter.ObstacleRange},{(scatter.Counter.Percentage(360) * 100)}");
+            //}
+            //_output.WriteLine($"{max} - {(max * 0.75)}");
+        }
+
+        [Fact]
         public void FinalAnalysis()
         {
             var all = File.ReadAllLines(FileRef.FinalPotential).Select(l => new Data(l)).ToList();
@@ -384,16 +445,16 @@ namespace Benchmarking.Thesis.ChapterThree
 
         public class Scatter
         {
-            public Scatter(int obstacleRange, int obstacleConstant, int attractiveConstant)
+            public Scatter(double obstacleRange, double obstacleConstant, double attractiveConstant)
             {
                 ObstacleRange = obstacleRange;
                 ObstacleConstant = obstacleConstant;
                 AttractiveConstant = attractiveConstant;
             }
-            public int ObstacleRange { get; set; }
-            public int ObstacleConstant { get; set; }
-            public int AttractiveConstant { get; set; }
-            public int Counter { get; set; } = 1;
+            public double ObstacleRange { get; set; }
+            public double ObstacleConstant { get; set; }
+            public double AttractiveConstant { get; set; }
+            public double Counter { get; set; } = 1;
 
             public virtual string Line => $"{ObstacleRange},{ObstacleConstant},{AttractiveConstant},{Counter}";
         }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Benchmarking.Core.Map;
 using Benchmarking.Helper;
 using Benchmarking.Thesis.ChapterFour.Data;
 using Benchmarking.Thesis.ChapterThree;
@@ -22,6 +23,66 @@ namespace Benchmarking.Thesis.ChapterFour
         {
             _output = output;
             _data = File.ReadAllLines(FileRef.AllRunsFinal).Select(d => new Evaluate.EvaluateData(d)).ToList();
+        }
+
+        [Fact]
+        public void ChapterFourPfBig()
+        {
+            MiniInfo(Approach.PotentialField);
+            MiniInfo(Approach.PheromoneField);
+        }
+
+        private void MiniInfo(Approach approach)
+        {
+            _output.WriteLine($"{approach}");
+            var sb = new StringBuilder();
+            //sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Steps).Average():F}, ");
+            //sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Steps).Average():F}, ");
+
+            //sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Steps).StandardDeviation():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Steps).Min():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Steps).Percentile(0.25):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Steps).Percentile(0.5):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Steps).Percentile(0.75):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Steps).Max():F} || ");
+
+            //sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Steps).StandardDeviation():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Steps).Min():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Steps).Percentile(0.25):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Steps).Percentile(0.5):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Steps).Percentile(0.75):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Steps).Max():F} \\\\");
+            _output.WriteLine(sb.ToString());
+            
+            sb = new StringBuilder();
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Visibility).Min():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Visibility).Percentile(0.25):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Visibility).Percentile(0.5):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Visibility).Percentile(0.75):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.Visibility).Max():F} || ");
+
+            //sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Visibility).StandardDeviation():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Visibility).Min():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Visibility).Percentile(0.25):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Visibility).Percentile(0.5):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Visibility).Percentile(0.75):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.Visibility).Max():F} \\\\");
+            _output.WriteLine(sb.ToString());
+            
+            sb = new StringBuilder();
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.PathSmoothness).Min():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.PathSmoothness).Percentile(0.25):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.PathSmoothness).Percentile(0.5):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.PathSmoothness).Percentile(0.75):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach).Select(s => s.PathSmoothness).Max():F} || ");
+
+            //sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.PathSmoothness).StandardDeviation():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.PathSmoothness).Min():F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.PathSmoothness).Percentile(0.25):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.PathSmoothness).Percentile(0.5):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.PathSmoothness).Percentile(0.75):F}, ");
+            sb.Append($"{_data.Where(d => d.Approach == approach && d.Success).Select(s => s.PathSmoothness).Max():F} \\\\");
+            _output.WriteLine(sb.ToString());
         }
 
         [Fact]
@@ -112,7 +173,7 @@ namespace Benchmarking.Thesis.ChapterFour
                 var duration = eval.Duration(approach).Any() ? eval.Duration(approach).Average(a => a.Value) : -1;
                 var visibility = eval.Visibility(approach).Any() ? eval.Visibility(approach).Average(a => a.Value) : -1;
 
-                rows.Add(new []{ $"{approach}", $"{score:F}", $"{success:F}", $"{path:F}", $"{smoothness:F}", $"{duration:F}", $"{visibility:F}" });
+                rows.Add(new []{ $"{approach}", $"{score:F3}", $"{success:F3}", $"{path:F}", $"{smoothness:F}", $"{duration:F}", $"{visibility:F}" });
             }
 
             var tableLines = Latex.Table(columns, rows, caption, label);
@@ -121,6 +182,18 @@ namespace Benchmarking.Thesis.ChapterFour
             {
                 _output.WriteLine(line);
             }
+        }
+
+        [Fact]
+        public void RrtFailTable()
+        {
+            var genMaps = Evaluate.GetGenMaps();
+            var staticMaps = Evaluate.GetStaticMaps();
+
+            var data = File.ReadAllLines(FileRef.AllRunsFinal).Select(d => new Evaluate.EvaluateData(d)).ToList();
+            
+            
+
         }
 
 

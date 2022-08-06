@@ -168,12 +168,26 @@ namespace Benchmarking.Thesis.ChapterThree
 
         public static bool IsStaticMap(MapType map)
         {
-            return new MapType[]
+            return GetStaticMaps().Contains(map);
+        }
+
+        public static MapType[] GetStaticMaps()
+        {
+            return new []
             {
                 MapType.WallOne, MapType.WallTwo, MapType.WallThree, MapType.SlitOne, MapType.SlitTwo, MapType.SlitThree, MapType.RoomOne, MapType.RoomTwo, MapType.RoomThree, MapType.PlankPileOne,
                 MapType.PlankPileTwo, MapType.PlankPileThree, MapType.CorridorOne, MapType.CorridorTwo, MapType.CorridorThree, MapType.BugTrapOne, MapType.BugTrapTwo,
                 MapType.BugTrapThree
-            }.Contains(map);
+            };
+        }
+
+        public static MapType[] GetGenMaps()
+        {
+            return new []
+            {
+                MapType.ObstacleOne, MapType.ObstacleTwo, MapType.ObstacleThree, MapType.ObstacleFour, MapType.ObstacleFive,
+                MapType.TunnelOne, MapType.TunnelTwo, MapType.TunnelThree, MapType.TunnelFour, MapType.TunnelFive
+            };
         }
     }
 }

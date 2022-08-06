@@ -21,6 +21,106 @@ namespace Benchmarking.Thesis.ChapterFour
         }
 
         [Fact]
+        public void TreeComparisons()
+        {
+            var data = File.ReadAllLines(FileRef.AllRunsFinal).Select(d => new Evaluate.EvaluateData(d)).ToList();
+            var staticMaps = Evaluate.GetStaticMaps();
+            var genMaps = Evaluate.GetGenMaps();
+            _output.WriteLine($"RRT Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"RRT Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"RRT Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"RRT Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success)}");
+            _output.WriteLine($"RRT Total: {data.Count(r => r.Approach == Evaluate.ApproachType.RRT)}");
+
+            _output.WriteLine($"RRTExtended Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"RRTExtended Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"RRTExtended Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"RRTExtended Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success)}");
+            _output.WriteLine($"RRTExtended Total: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended)}");
+
+            _output.WriteLine($"Static maps");
+            _output.WriteLine($"RRT Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"RRT Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"RRT Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"RRT Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success && staticMaps.Contains(r.Map))}");
+            _output.WriteLine($"RRT Total: {data.Count(r => r.Approach == Evaluate.ApproachType.RRT && staticMaps.Contains(r.Map))}");
+
+            _output.WriteLine($"RRTExtended Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"RRTExtended Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"RRTExtended Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"RRTExtended Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && staticMaps.Contains(r.Map))}");
+            _output.WriteLine($"RRTExtended Total: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && staticMaps.Contains(r.Map))}");
+
+            _output.WriteLine($"Generated maps");
+            _output.WriteLine($"RRT Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"RRT Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"RRT Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"RRT Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.RRT && !r.Success && genMaps.Contains(r.Map))}");
+            _output.WriteLine($"RRT Total: {data.Count(r => r.Approach == Evaluate.ApproachType.RRT && genMaps.Contains(r.Map))}");
+
+            _output.WriteLine($"RRTExtended Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"RRTExtended Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"RRTExtended Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"RRTExtended Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && genMaps.Contains(r.Map))}");
+            _output.WriteLine($"RRTExtended Total: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && genMaps.Contains(r.Map))}");
+
+            foreach (var mapType in genMaps)
+            {
+                _output.WriteLine($"{mapType}:");
+                _output.WriteLine($"RRT Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && mapType == (r.Map)).Count(r => r.Steps > 1000)}");
+                _output.WriteLine($"RRT Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && mapType == (r.Map)).Count(r => r.Time > 9_999)}");
+                _output.WriteLine($"RRT Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && mapType == (r.Map))}");
+                _output.WriteLine($"RRT Total: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && mapType == (r.Map))}");
+
+                _output.WriteLine($"RRTExtended Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && mapType == (r.Map)).Count(r => r.Steps > 1000)}");
+                _output.WriteLine($"RRTExtended Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && mapType == (r.Map)).Count(r => r.Time > 9_999)}");
+                _output.WriteLine($"RRTExtended Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && !r.Success && mapType == (r.Map))}");
+                _output.WriteLine($"RRTExtended Total S: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && r.Success && mapType == (r.Map))}");
+                _output.WriteLine($"RRTExtended Total: {data.Count(r => r.Approach == Evaluate.ApproachType.RRTExtended && mapType == (r.Map))}");
+            }
+
+        }
+
+        [Fact]
+        public void PffComparisons()
+        {
+            var data = File.ReadAllLines(FileRef.AllRunsFinal).Select(d => new Evaluate.EvaluateData(d)).ToList();
+            var staticMaps = Evaluate.GetStaticMaps();
+            var genMaps = Evaluate.GetGenMaps();
+            _output.WriteLine($"PheromoneField Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"PheromoneField Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"PheromoneField Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"PheromoneField Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success)}");
+            _output.WriteLine($"PheromoneField Total: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField)}");
+
+            _output.WriteLine($"Static maps");
+            
+            _output.WriteLine($"PheromoneField Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"PheromoneField Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"PheromoneField Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && staticMaps.Contains(r.Map)).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"PheromoneField Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && staticMaps.Contains(r.Map))}");
+            _output.WriteLine($"PheromoneField Total: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField && staticMaps.Contains(r.Map))}");
+
+            _output.WriteLine($"Generated maps");
+            _output.WriteLine($"PheromoneField Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Steps > 1000)}");
+            _output.WriteLine($"PheromoneField Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Time > 9_999)}");
+            _output.WriteLine($"PheromoneField Other Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && genMaps.Contains(r.Map)).Count(r => r.Steps < 1000 && r.Time < 9_999)}");
+            _output.WriteLine($"PheromoneField Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && genMaps.Contains(r.Map))}");
+            _output.WriteLine($"PheromoneField Total: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField && genMaps.Contains(r.Map))}");
+
+            foreach (var mapType in genMaps)
+            {
+                _output.WriteLine($"{mapType}:");
+                _output.WriteLine($"PheromoneField Steps Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && mapType == (r.Map)).Count(r => r.Steps > 1000)}");
+                _output.WriteLine($"PheromoneField Time Fail: {data.Where(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && mapType == (r.Map)).Count(r => r.Time > 9_999)}");
+                _output.WriteLine($"PheromoneField Total Fail: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField && !r.Success && mapType == (r.Map))}");
+                _output.WriteLine($"PheromoneField Total S: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField && r.Success && mapType == (r.Map))}");
+                _output.WriteLine($"PheromoneField Total: {data.Count(r => r.Approach == Evaluate.ApproachType.PheromoneField && mapType == (r.Map))}");
+            }
+
+        }
+
+        [Fact]
         public void Overview()
         {
             var data = File.ReadAllLines(FileRef.AllRunsFinal).Select(d => new Evaluate.EvaluateData(d)).ToList();
@@ -44,15 +144,23 @@ namespace Benchmarking.Thesis.ChapterFour
                 _output.WriteLine("----------------------------------------------------------");
                 var all = data.Where(m => m.Map == mapType).ToList();
                 var eval = new Evaluate(all);
-                var scores = (from Evaluate.ApproachType approach in Enum.GetValues(typeof(Evaluate.ApproachType)) select (approach, value: eval.Score(approach, 0.75, 0.75, 0.25))).ToList();
+                var scores = (Enum.GetValues(typeof(Evaluate.ApproachType))
+                    .Cast<Evaluate.ApproachType>()
+                    .Select(approach => (approach,
+                        value: eval.Score(approach, pathWeight: 0.5, durationWeight: 0.5, pathSmoothnessWeight: 0.5)))).ToList();
                 foreach (var score in scores.OrderByDescending(s => s.value))
                 {
-                    _output.WriteLine($"{score.approach}: {score.value:F}" +
-                                      $" | S:{(eval.CalculateSuccess(score.approach).Any() ? eval.CalculateSuccess(score.approach).Average(a => a.Value) : 0)}" +
-                                      $" | P:{(eval.Path(score.approach).Any() ? eval.Path(score.approach).Average(a => a.Value) : 0)}" +
-                                      $" | D:{(eval.Duration(score.approach).Any() ? eval.Duration(score.approach).Average(a => a.Value) : 0)}" +
-                                      $" | V:{(eval.Visibility(score.approach).Any() ? eval.Visibility(score.approach).Average(a => a.Value) : 0)}" +
-                                      $" | M:{(eval.PathSmoothness(score.approach).Any() ? eval.PathSmoothness(score.approach).Average(a => a.Value) : 0)}");
+                    //if (score.approach is not (Evaluate.ApproachType.AStar))
+                        _output.WriteLine($"{score.approach}:\t" +
+                                          $"{(score.approach == Evaluate.ApproachType.RRT ? "\t\t" : "")}" +
+                                          $"{(score.approach == Evaluate.ApproachType.AStar ? "\t\t" : "")}" +
+                                          $"{(score.approach == Evaluate.ApproachType.BaseLine ? "\t" : "")}" +
+                                          $"{score.value:F3}" +
+                                          $" | S:{(eval.CalculateSuccess(score.approach).Any() ? eval.CalculateSuccess(score.approach).Average(a => a.Value) : 0):F3}" +
+                                          $" | P:{(eval.Path(score.approach).Any() ? eval.Path(score.approach).Average(a => a.Value) : 0):F3}" +
+                                          $" | D:{(eval.Duration(score.approach).Any() ? eval.Duration(score.approach).Average(a => a.Value) : 0):F3}" +
+                                          $" | V:{(eval.Visibility(score.approach).Any() ? eval.Visibility(score.approach).Average(a => a.Value) : 0):F3}" +
+                                          $" | M:{(eval.PathSmoothness(score.approach).Any() ? eval.PathSmoothness(score.approach).Average(a => a.Value) : 0):F3}");
                 }
             }
         }
